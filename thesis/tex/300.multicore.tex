@@ -1,0 +1,16 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\chapter{Multicore}
+	Most of \hpc programming nowadays resumes to one of two languages: Fortran and C/C++. While the latter is preferred by the majority of programmers, most mathematicians and physicists prefer the former to implement their algorithms and simulations.
+
+	The reason behind the success of Fortran lies in its evolution. Fortran (FORmula TRANslator) was the first language to abstract the underlying machine, which provided a way for scientists to program their numerical procedures, something that previously required a person specifically trained for that.
+
+	Fortran evolved in many different ways, each new \textit{version} a language in its own right. This fact hampers the learning process, as a programmer who knows Fortran 90 will most likely have trouble interpreting Fortran IV, which does not happen with C/C++, since the languages have been defined by standards since their early days. While it is still very appealing for the scientific and academic world, more friendly alternatives exist such as MATLAB and the free-software equivalent GNU Octave. As for programmers, it has been challenged for several decades by the C language, a friendlier alternative to the first versions of Fortran.
+
+	Some features in Fortran are particularly useful for linear algebra algorithms, such as the array slicing notation. These features have long been incorporated in MATLAB and GNU Octave. As for C/C++, while the language does not support these features, this behaviour can be emulated using the Armadillo library. There is also an extension developed by Intel called Intel Cilk Plus which provides an array notation specially targeted for identifying data parallelism.
+
+	The Armadillo library is a C++ linear algebra library with an API deliberately similar to MATLAB. Its complex template system (meta-programming) is targeted for speed and ease of use. In particular, it uses complex meta-programming mechanisms available in C++ to minimize memory usage. It also works as an abstract interface, allowing to use a high performance replacement for BLAS and LAPACK such as Intel MKL, AMD ACML or OpenBLAS. The interface is mostly agnostic during compilation and only during linkage does it require the replacement to be available.
+
+	The original implementation developed in \cite{Deadman:Higham:Ralha:2013} was coded in Fortran 90 and it is under the licensing restrictions of the NAG Fortran library. In order to port the implementation to an open source environment, C/C++ is preferred due to familiarity with the language. Also, it has similar potential for \hpc, it is more flexible and using the Armadillo library provides the same features for easier and faster development.
+\end{document}
