@@ -1,16 +1,107 @@
+%!TEX root = ../thesis.tex
 \documentclass[../thesis]{subfiles}
 
 \begin{document}
 	\chapter{Multicore}
-	Most of \hpc programming nowadays resumes to one of two languages: Fortran and C/C++. While the latter is preferred by the majority of programmers, most mathematicians and physicists prefer the former to implement their algorithms and simulations.
+	Most of \hpc programming nowadays resumes to one of two languages: Fortran and C/C++. While the latter is preferred by the majority of programmers, the former is the preference of many mathematicians and physicists to implement their algorithms and simulations.
 
-	The reason behind the success of Fortran lies in its evolution. Fortran (FORmula TRANslator) was the first language to abstract the underlying machine, which provided a way for scientists to program their numerical procedures, something that previously required a person specifically trained for that.
+	The reason behind the success of Fortran lies in its evolution. Fortran (FORmula TRANslator) was the first language to abstract the underlying machine, which provided a way for scientists to program their numerical procedures, something that previously required knowledge of binary instructions, or the assembly language \cite{IBM100:Fortran}.
 
-	Fortran evolved in many different ways, each new \textit{version} a language in its own right. This fact hampers the learning process, as a programmer who knows Fortran 90 will most likely have trouble interpreting Fortran IV, which does not happen with C/C++, since the languages have been defined by standards since their early days. While it is still very appealing for the scientific and academic world, more friendly alternatives exist such as MATLAB and the free-software equivalent GNU Octave. As for programmers, it has been challenged for several decades by the C language, a friendlier alternative to the first versions of Fortran.
+	Since its first release, Fortran has been updated several times, each new \textit{version} a language in its own right while still striving to maintain compatibility with earlier versions. This fact allows for legacy code to keep its compatibility with new projects and provides programmers familiarized with Fortran with better tools, but at the same time it hampers the learning process, as a programmer who knows Fortran 90 will most likely have trouble interpreting Fortran IV. This does not happen with C and C++, as both languages have been vastly enhanced since their first release but the syntax itself remained very similar. Other alternatives are currently being used by the scientific and academic world, such as MATLAB and the free-software equivalent GNU Octave, which provide an even friendlier language and environment still focusing on performance
 
-	Some features in Fortran are particularly useful for linear algebra algorithms, such as the array slicing notation. These features have long been incorporated in MATLAB and GNU Octave. As for C/C++, while the language does not support these features, this behaviour can be emulated using the Armadillo library. There is also an extension developed by Intel called Intel Cilk Plus which provides an array notation specially targeted for identifying data parallelism.
+	Some features in Fortran are particularly useful for linear algebra algorithms, such as the array slicing notation. These features have long been incorporated in MATLAB and GNU Octave. As for C++, while the language does not support these features, this behaviour can be emulated using the Armadillo library. There is also an extension developed by Intel called Intel Cilk Plus which provides an array notation specially targeted for identifying data parallelism.
 
-	The Armadillo library is a C++ linear algebra library with an API deliberately similar to MATLAB. Its complex template system (meta-programming) is targeted for speed and ease of use. In particular, it uses complex meta-programming mechanisms available in C++ to minimize memory usage. It also works as an abstract interface, allowing to use a high performance replacement for BLAS and LAPACK such as Intel MKL, AMD ACML or OpenBLAS. The interface is mostly agnostic during compilation and only during linkage does it require the replacement to be available.
+	The Armadillo library is a C++ linear algebra library with an API deliberately similar to MATLAB. Its complex template system (meta-programming) is targeted for speed and ease of use. In particular, it uses complex meta-programming mechanisms available in C++ to minimize memory usage. It also works as an abstract interface, allowing to use a high performance replacement for BLAS and LAPACK such as Intel MKL, AMD ACML or OpenBLAS. The interface is mostly agnostic during compilation and only during linkage does it require the replacement package to be available.
 
-	The original implementation developed in \cite{Deadman:Higham:Ralha:2013} was coded in Fortran 90 and it is under the licensing restrictions of the NAG Fortran library. In order to port the implementation to an open source environment, C/C++ is preferred due to familiarity with the language. Also, it has similar potential for \hpc, it is more flexible and using the Armadillo library provides the same features for easier and faster development.
+	The original implementation developed in \cite{Deadman:Higham:Ralha:2013} was coded in Fortran 90 and it is under the licensing restrictions of the NAG Fortran library. In order to port the implementation to an open source environment, C++ is preferred due to familiarity with the language. Also, it has similar potential for \hpc, it is more flexible and using the Armadillo library provides the same features for easier and faster development.
+
+	\section{Column/Row}
+	The implementation of the matrix square root algorithm was based on a MATLAB implementation of the algorithm for real upper triangular matrices from \cite{Deadman:Higham:Ralha:2013} and, as such, holds the same assumption: the input matrix is already in triangular form, being a perfect upper triangular real matrix. In other words, this implementation does not support complex arithmetic, neither does it support quasi-triangular matrices. This assumption allows to focus the efforts towards implementing the algorithm for the resources available in heterogeneous systems, instead of implementing and validating multiple full featured solutions.
+
+	This reference implementation uses the column strategy, i.e., computes the square root matrix one column at a time. \Cref{alg:sqrtm:column:point} shows the algorithm for this strategy. Columns are swept from left to right and in each column rows are traversed from the main diagonal up. The main diagonal element has no dependencies, it is computed straight away. All the other elements depend on those on its left and below. Solving the dependencies for a given element $U_{ij}$ outside the main diagonal consists in multiplying the sub-row in $i$ from the main diagonal to the column $j-1$ by the sub-column in $j$ from the row $i+1$ down to the main diagonal.
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root (column, point)}
+		\label{alg:sqrtm:column:point}
+		\DontPrintSemicolon
+
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+		fill $U$ with zeros\;
+
+		\For{$j \leftarrow 0$ \KwTo $n-1$}{
+			$U_{jj} \leftarrow \sqrt{T_{jj}}$\;
+
+			\For{$i \leftarrow j-1$ \KwTo $0$}{
+				$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
+				$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
+				$s \leftarrow r \times c$
+
+				$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} \cdot U_{jj}}$\;
+			}
+		}
+	\end{algorithm}
+
+	A block implementation of this algorithm consists in expanding the indices $i$ and $j$ to ranges. Given the assumptions for these implementations, the blocks can be thought of a regular grid of squares where only the blocks in the last row and column may have smaller dimensions (in case the block size is not a multiple of the matrix dimension). In fact, due to the upper triangular form of the matrix, only the blocks in the last column may be smaller (the last row is mostly zeros) and all the blocks in the main diagonal are squared.
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root (column, block)}
+		\label{alg:sqrtm:column:block}
+		\DontPrintSemicolon
+
+		\SetKwFunction{min}{min}
+		\SetKwFunction{range}{range}
+		\SetKwFunction{sqrtm}{sqrtm}
+		\SetKwFunction{sylvester}{sylvester}
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Input{The dimension of a full block $b$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+		fill $U$ with zeros\;
+
+		$x \leftarrow 0$\;
+		$j_0 \leftarrow 0$\;
+		\While{$j_0 < n$}{
+			$j_1 \leftarrow$\min{$j_0 + b$, $n$}$ - 1$\;
+			$j \leftarrow$\range{$j_0$, $j_1$}\;
+			$U_{jj} \leftarrow$\sqrtm{$T_{jj}$}\;
+			$G = U_{jj}$\;
+			\BlankLine
+			$y \leftarrow x$\;
+			$i_0 \leftarrow j_0$\;
+			\While{$i_0 > 0$}{
+				$y \leftarrow y - 1$\;
+				$i_1 \leftarrow i_0$\;
+				$i_0 \leftarrow i_0 - b$\;
+				$i \leftarrow$\range{$i_0$, $i_1$}\;
+				$F \leftarrow U_{ii}$\;
+				$C \leftarrow T_{ii}$\;
+				\For{$z \leftarrow y + 1$ \KwTo $x - 1$}{
+					$k_0 \leftarrow k \cdot b$\;
+					$k_1 \leftarrow (k+1) \cdot b - 1$\;
+					$k \leftarrow$\range{$k_0$, $k_1$}\;
+					$C \leftarrow C - U_{ik} \times U_{kj}$\;
+				}
+				$U_{ij} \leftarrow$\sylvester{$F$,$G$,$C$}\;
+			}
+			\BlankLine
+			$x \leftarrow x + 1$\;
+			$j_0 \leftarrow j_0 + b$\;
+		}
+	\end{algorithm}
+
+	\Cref{alg:sqrtm:column:block} shows the blocked algorithm using the column strategy. It seems quite more complex than the point method but it is mostly due to the expansion of indices to ranges. As such most of the algorithm can be directly associated with the previous method, with some small exceptions:
+	\begin{itemize}
+		\item Two variables $x$ and $y$ are added to store the index of the blocks in the grid that lies over the matrix. These variables are used to reach the dependency blocks;
+		\item Solving the dependencies can no longer be performed with a vector-vector multiplication. Instead, the sums and multiplications are done explicitly;
+		\item The scalar arithmetic is replaced with linear algebra functions. In particular, computing the resulting block after solving the dependencies implies solving a Sylvester equation.
+	\end{itemize}
+
 \end{document}
