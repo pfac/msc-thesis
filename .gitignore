@@ -29,6 +29,7 @@
 *.pdf
 *.pdfsync
 *.ps
+*.pyg
 *.run.xml
 *.snm
 *.sty

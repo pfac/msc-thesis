@@ -16,7 +16,12 @@
 	The original implementation developed in \cite{Deadman:Higham:Ralha:2013} was coded in Fortran 90 and it is under the licensing restrictions of the NAG Fortran library. In order to port the implementation to an open source environment, C++ is preferred due to familiarity with the language. Also, it has similar potential for \hpc, it is more flexible and using the Armadillo library provides the same features for easier and faster development.
 
 	\section{Column/Row}
-	The implementation of the matrix square root algorithm was based on a MATLAB implementation of the algorithm for real upper triangular matrices from \cite{Deadman:Higham:Ralha:2013} and, as such, holds the same assumption: the input matrix is already in triangular form, being a perfect upper triangular real matrix. In other words, this implementation does not support complex arithmetic, neither does it support quasi-triangular matrices. This assumption allows to focus the efforts towards implementing the algorithm for the resources available in heterogeneous systems, instead of implementing and validating multiple full featured solutions.
+	The implementation of the matrix square root algorithm was based on a MATLAB implementation of the algorithm for real upper triangular matrices from \cite{Deadman:Higham:Ralha:2013} and, as such, holds the same assumptions:
+		\begin{enumerate}
+			\item The input matrix is already in triangular form, being a perfect upper triangular real matrix;
+			\item The principal square root of the input matrix exists.
+		\end{enumerate}
+	In other words, this implementation does not support complex arithmetic, neither does it support quasi-triangular matrices. It also does not compute the eigenvalues of the input matrix in order to check if the principal square root exists for that matrix. These assumptions allow to focus the efforts towards implementing the algorithm at the core of the process for the resources available in heterogeneous systems, instead of implementing and validating multiple full featured solutions.
 
 	This reference implementation uses the column strategy, i.e., computes the square root matrix one column at a time. \Cref{alg:sqrtm:column:point} shows the algorithm for this strategy. Columns are swept from left to right and in each column rows are traversed from the main diagonal up. The main diagonal element has no dependencies, it is computed straight away. All the other elements depend on those on its left and below. Solving the dependencies for a given element $U_{ij}$ outside the main diagonal consists in multiplying the sub-row in $i$ from the main diagonal to the column $j-1$ by the sub-column in $j$ from the row $i+1$ down to the main diagonal.
 
@@ -37,9 +42,12 @@
 			$U_{jj} \leftarrow \sqrt{T_{jj}}$\;
 
 			\For{$i \leftarrow j-1$ \KwTo $0$}{
-				$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
-				$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
-				$s \leftarrow r \times c$
+				$s \leftarrow 0$\;
+				\If{$j-1 > i+1$}{
+					$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
+					$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
+					$s \leftarrow r \times c$\;
+				}
 
 				$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} \cdot U_{jj}}$\;
 			}
@@ -84,8 +92,8 @@
 				$F \leftarrow U_{ii}$\;
 				$C \leftarrow T_{ii}$\;
 				\For{$z \leftarrow y + 1$ \KwTo $x - 1$}{
-					$k_0 \leftarrow k \cdot b$\;
-					$k_1 \leftarrow (k+1) \cdot b - 1$\;
+					$k_0 \leftarrow z \cdot b$\;
+					$k_1 \leftarrow (z+1) \cdot b - 1$\;
 					$k \leftarrow$\range{$k_0$, $k_1$}\;
 					$C \leftarrow C - U_{ik} \times U_{kj}$\;
 				}
@@ -103,5 +111,16 @@
 		\item Solving the dependencies can no longer be performed with a vector-vector multiplication. Instead, the sums and multiplications are done explicitly;
 		\item The scalar arithmetic is replaced with linear algebra functions. In particular, computing the resulting block after solving the dependencies implies solving a Sylvester equation.
 	\end{itemize}
+
+	A row strategy is very similar to the algorithm that computes a column at a time. It consists mainly in swapping the two outer loops, so that the algorithm sweeps the matrix rows, from the bottom upward, and in traversing each row from the main diagonal to the element in the last column. These two strategies are equivalent and fit the two methods for storing multidimensional arrays in linear memory: the column strategy takes advantage of a column-major order used in Fortran, MATLAB and GNU Octave; the row strategy has better locality in a row-major order, typically used in C, C++ and Python.
+
+	While the row-major order is typically used in C++, the Armadillo library uses column-major order by default to improve its compatibility with the standard Fortran interfaces used in BLAS and LAPACK packages.
+
+	\subfile{tex/320.multicore.diagonal.tex}
+	\subfile{tex/330.multicore.implementation.tex}
+	% validation
+	% environmental setup (a.k.a. configuration and hardware)
+	% methodology
+	% results (and conclusion, but I don't want to make a section just for that because I don't have a proper name for it)
 
 \end{document}

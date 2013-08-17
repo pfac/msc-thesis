@@ -1,0 +1,90 @@
+%!TEX root = ../thesis.tex
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+		\section{Superdiagonal}
+		Given the dependencies of each element, using the column/row strategy does not allow to for more than one element to be computed at a time. On the other hand, since the dependencies of each element lie in those below and at its left, all the elements in the same diagonal can be computed in parallel.
+
+		Extending the column/row algorithm to a strategy that sweeps diagonals, starting with the main diagonal and going up towards the top right corner of the matrix, is not trivial but becomes simple when indexing each of the diagonals and their elements.
+
+		\begin{algorithm}[htp]
+			\caption{Matrix Square Root (diagonal, point)}
+			\label{alg:multicore:diagonal:point}
+			\DontPrintSemicolon
+
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+
+			\Input{A real upper triangular matrix $T$}
+			\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+			$n \leftarrow$ dimension of $T$\;
+			fill $U$ with zeros\;
+
+			\For{$d \leftarrow 0$ \KwTo $n-1$}{
+				\For{$e \leftarrow 0$ \KwTo $n-d-1$}{
+					\eIf{$d = 0$}{
+						$U_{ee} \leftarrow \sqrt{T_{ee}}$\;
+					}{
+						$i \leftarrow e$\;
+						$j \leftarrow e + d$\;
+						$s \leftarrow 0$\;
+						\If{$j-1 > i+1$}{
+							$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
+							$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
+							$s \leftarrow r \times c$\;
+						}
+						$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} \cdot U_{jj}}$\;
+					}
+				}
+			}
+		\end{algorithm}
+
+		\Cref{alg:multicore:diagonal:point} shows the algorithm for computing the square root of a matrix using the point method and the superdiagonal strategy. The diagonals are numbered from $0$ (main diagonal) to $n-1$ (the last diagonal, containing only the top right corner element). Inside each diagonal, the elements are indexed in top-down order, starting at zero. Notice that this simple index system fits the needs of the algorithm perfectly, allowing to compute easily how many elements each diagonal has. The core of the algorithm, specifically the operations performed in each element, remains the same as with the column/row strategy.
+
+		\begin{algorithm}[htp]
+			\caption{Matrix Square Root (diagonal, block)}
+			\label{alg:multicore:diagonal:block}
+			\DontPrintSemicolon
+
+			\SetKwFunction{min}{min}
+			\SetKwFunction{range}{range}
+			\SetKwFunction{sqrtm}{sqrtm}
+			\SetKwFunction{sylvester}{sylvester}
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+
+			\Input{A real upper triangular matrix $T$}
+			\Input{The dimension of a full block $b$}
+			\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+			$n \leftarrow$ dimension of $T$\;
+			$\#\mathrm{blocks} \leftarrow \ceil{n / b}$\;
+			fill $U$ with zeros\;
+
+			\For{$d \leftarrow 0$ \KwTo $\#\mathrm{blocks}-1$}{
+				\For{$e \leftarrow 0$ \KwTo $\#\mathrm{blocks}-d-1$}{
+					$i_0 \leftarrow e \cdot b$\;
+					$i_1 \leftarrow $\min{$(e+1) \cdot b$, $n$}$-1$\;
+					$i \leftarrow $\range{$i_0$, $i_1$}\;
+					\eIf{$d = 0$}{
+						$U_{ii} \leftarrow $\sqrtm{${T_{ii}}$}\;
+					}{
+						$j_0 \leftarrow (e + d) \cdot b$\;
+						$j_1 \leftarrow $\min{$(e + d + 1) \cdot b$, $n$}$-1$\;
+						$j \leftarrow $\range{$j_0$, $j_1$}\;
+						$F \leftarrow U_{ii}$\;
+						$G \leftarrow U_{jj}$\;
+						$C \leftarrow T_{ij}$\;
+						\For{$z \leftarrow 1$ \KwTo $d - 1$}{
+							$k_0 \leftarrow (e + z) \cdot b$\;
+							$k_1 \leftarrow (e + z + 1) \cdot b - 1$\;
+							$k \leftarrow $\range{$k_0$, $k_1$}\;
+							$C \leftarrow C - U_{ik} \times U_{kj}$\;
+						}
+						$U_{ij} \leftarrow $\sylvester{$F$,$G$,$C$}\;
+					}
+				}
+			}
+		\end{algorithm}
+
+		The extension to the block method is shown in \Cref{alg:multicore:diagonal:block}. In this algorithm, besides expanding $i$ and $j$ into ranges, $d$ and $e$ index a whole diagonal of blocks and a whole block, respectively. The expansion of indices to ranges is similar to what happens in the column/row strategy, with the exception that there is no need for the block coordinates $x$ and $y$. These are replaced with the diagonal and element indices, which in turn slightly simplifies the procedure of solving the dependencies.
+\end{document}
