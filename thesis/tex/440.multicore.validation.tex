@@ -1,0 +1,39 @@
+%!TEX root = ../thesis.tex
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Validation}
+	\citewithauthor{Higham:1987} describes the extension of the method devised by \citeauthor{bjorck:hammarling:1983}, which requires complex arithmetic, to compute the real square root of a real matrix in real arithmetic. In his work, the author analyses the stability of the real Schur method, and concludes that it is stable, provided $\alpha_F(X)$ is sufficiently small, where $$\alpha_F(X) = \frac{\norm{X}_F^2}{\norm{A}_F^2}\enspace.$$ In \cite{Deadman:Higham:Ralha:2013}, \citeauthor{Deadman:Higham:Ralha:2013} presented two blocked methods for performing the same computation and concluded that both satisfy the same backward error bounds as the point algorithm.
+
+	Validating an implementation is based on measuring the relative error. Yet, the variation of this value is tied to the stability of the algorithm, which in turn was proved to be tied to the matrices used as input. The matrices used to validate and profile these implementations were generated randomly, and first attempts of validation showed great variations in the relative error as the dimension increased. To make it even more confusing, MATLAB uses its own implementation of BLAS and LAPACK, which translated in different relative errors for the same operations between all the implementations and the reference. For these reasons, the relative error control was reduced to checking the order of magnitude of the relative error.
+
+		\subsection{Control Matrices}
+		Matrices generated randomly may not have a principal square root, so, to ensure the existence of such a matrix, the generated one is multiplied by itself and the result is used to test the implementations. Yet, this process already introduces some rounding errors through the matrix multiplication operation, which worsens the difficulties in properly comparing relative errors.
+
+		In order to ease the validation of new implementations, control matrices are generated instead of random ones. These matrices are composed by integer numbers, consecutive along the columns. See for example the left hand side of \cref{eq:example:5x5}. 
+		\begin{equation}
+			\begin{array}{c}
+				\begin{bmatrix}
+					 1 &  2 &  4 &  7 & 11  \\
+					 0 &  3 &  5 &  8 & 12  \\
+					 0 &  0 &  6 &  9 & 13  \\
+					 0 &  0 &  0 & 10 & 14  \\
+					 0 &  0 &  0 &  0 & 15  \\
+				\end{bmatrix}^2  \\
+				U
+			\end{array}
+			& = &
+			\begin{array}{c}
+				\begin{bmatrix}
+					  1 &   8 &  38 & 129 & 350  \\
+					  0 &   9 &  45 & 149 & 393  \\
+					  0 &   0 &  36 & 144 & 399  \\
+					  0 &   0 &   0 & 100 & 350  \\
+					  0 &   0 &   0 &   0 & 225  \\
+				\end{bmatrix}  \\
+				T
+			\end{array}
+			\label{eq:example:5x5}
+			}
+		\end{equation} The square of such a matrix is very well defined matrix, and as such it is reasonable to expect that any working implementation would be able to revert the process with minimal loss of precision. The consecutive elements of these matrices make them very easy to confirm visually, which aids in confirming progress during the development process. It allows to confirm correction of very large matrices by checking specific elements since the expected first element in a given column can be easily calculated through the sequence of triangular numbers.
+\end{document}
