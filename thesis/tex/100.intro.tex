@@ -3,26 +3,6 @@
 \begin{document}
 	\chapter{Introduction}
 	\tdi{Context: The evolution of multiprocessing systems}
-	For more than half a century, computational systems have evolved at an increasing rate, fueled by a similar demand in computing power. The invention of the digital transistor, in 1947, smaller and faster than its predecessor, made computers smaller and more power efficient. Integrated circuits further reduced the space and power requirements of computers, which in turn led to the emergence of the microprocessor. The evolution of the microprocessor in the following decades followed had two main contributors: the number of transistors and their clock frequency.
-
-	A processor's clock frequency is the rate at which it can issue instructions, which means that a higher frequency roughly translated in more instructions being processed each second. Increasing a processor's frequency had its impact on software development. While each generation of processors offered a faster clock frequency, programs would simply run faster without any change to the underlying source code. On the other hand, increasing the number of transistors in a chip allowed to create complex systems to optimize software execution. These focused in two critical performance techniques: the exploration of \ilp and the use of memory caches.
-
-	In 1965, Gordon Moore, in an attempt to predict the evolution of integrated circuits during the following decade projected that the number of transistors would double every year. In 1975, adding more recent data, he slowed the future rate of increase in complexity to what is still today known as Moore's Law: the number of transistors in a chip doubles every two years.
-
-	In 2003, the evolution of the microprocessor reached a milestone. The increase in clock frequency of microprocessors closely followed the increase in the number of transistors, but the power density in processors was approaching the physical limitations of silicon with air cooling techniques. Continuing to increase the frequency would require new and prohibitively expensive cooling solutions. With Moore's Law still in effect, and the lack of more \ilp to explore efficiently, most vendors now focus on creating symmetric multi-core processors for the mass market.
-
-
-	\section{Parallel Architectures}
-
-	Parallelism is far from being a modern concept, much less in the field of \hpc. The raw performance of vector computers marked the beginning of modern Supercomputers\cite{Strohmaier:2005:20years}. These systems replicated instructions through several execution units allowing to apply the same operation to multiple operands at the same time. Vector machines prevailed in supercomputer design until the beginning of the 1990s. By this time the \mpp architectures became the most popular. These systems had two or more identical processors connected to separate memory and controlled by separate (but identical) operating systems. The middle and low-end systems consisted in \smp architectures containing two or more identical processors connected to a single shared main memory and controlled by a single operating system. In the following years cluster systems became the dominating design. With cluster computing separate computers, each having a \smp architecture, cooperate, appearing as a single system to the user. This trend has continued up to the present \cite{TheNextWave:1:2013:Supercomputers,TOP500:overtime}.
-
-	\citewithauthor{Hennessy:Patterson:2012:CAQA} define two classes of parallelism:
-		\begin{description}
-			\item [Data-Level Parallelism] consists in many data items being computed at the same time;
-			\item [Task-Level Parallelism], where different tasks of work are able to operate independently and largely in parallel.
-		\end{description}
-	The hardware can exploit these two kinds of parallelism at four different levels. Processors take advantage of \ilp without any intervention from the programmer through mechanisms like superscalarity, out-of-order execution, pipelining and speculative execution. Vector processing on the other hand, use a single instruction to operate over a collection of data in parallel, similar to what happened with vector computers but at a smaller scale. \tlp enables both data and task level parallelism by allowing more than one thread of instructions to be executed at the same time. Threads can also be used to hide memory latencies, by allowing another thread to use the physical resources while the memory request is not fulfilled. Lastly, \rlp exploits parallelism among largely decoupled tasks specified by the programmer or the operating system. It is generally used in clusters and warehouse computing.
-
 	\tdi{talk about SISD, SIMD & MIMD}
 
 	\section{Motivation and Goals}
