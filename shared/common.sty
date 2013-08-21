@@ -1,0 +1,50 @@
+\ProvidesPackage{common}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[portuguese,english]{babel}
+
+\usepackage[algoruled,lined,longend,linesnumbered]{algorithm2e}
+\usepackage{amsmath}
+\usepackage{acronym}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{mathtools}
+\usepackage{minted}
+\usepackage{pdfpages}    % enables \includepdf
+\usepackage{relsize}
+\usepackage{subfiles}
+\usepackage{todonotes}
+\usepackage{xspace}
+
+\usepackage{varioref}
+\usepackage[colorlinks=false]{hyperref}
+\usepackage[noabbrev,capitalise]{cleveref}
+\usepackage{breakurl}
+
+\usepackage{csquotes}
+\usepackage[backend=biber,bibencoding=utf8,maxnames=2,sorting=none]{biblatex}
+\usepackage[retainorgcmds]{IEEEtrantools}
+
+%%%%% %%%%% %%%%% %%%%% %%%%%
+%%%%%       HACKS       %%%%%
+%%%%% %%%%% %%%%% %%%%% %%%%%
+
+% ceil delimiters
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter\norm{\lVert}{\rVert}
+
+% minted C++ code snippets
+
+% equation label for the ieeeqnarray environment
+\newcommand{\IEEElabel}[1]{\begingroup\addtocounter{equation}{-1}%
+\refstepcounter{equation}\label{#1}\endgroup}
+
+%	Paragraph (title) with linebreak (like subsubsubsection)
+\newcommand{\paragraphh}[1]{\paragraph{#1\hfill}\hfill
+
+\smallskip
+}
+
+% cite with author name
+\newcommand{\citewithauthor}[1]{\citeauthor{#1}\xspace\cite{#1}}
