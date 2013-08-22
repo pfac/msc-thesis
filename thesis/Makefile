@@ -6,3 +6,4 @@ default: thesis.tex
 
 clean:
 	$(TEX) -C
+	$(RM) *.bbl *.loa *.lol *.pyg *.run.xml *.synctex.gz

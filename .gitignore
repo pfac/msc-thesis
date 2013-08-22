@@ -32,7 +32,6 @@
 *.pyg
 *.run.xml
 *.snm
-*.sty
 *.synctex.gz
 *.toc
 *.vrb

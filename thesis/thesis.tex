@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt,abstract=on,twoside,openright]{book}
+\documentclass[a4paper,12pt,twoside,openright]{book}
 
 \usepackage{thesis}
 
@@ -16,7 +16,9 @@
 \onehalfspacing
 
 \begin{document}
+	\hypersetup{pageanchor=false}
 	\includepdf[pages=-]{assets/cover.pdf}
+	\hypersetup{pageanchor=true}
 
 	\frontmatter
 	\setcounter{page}{3}
@@ -39,15 +41,15 @@
 	\mainmatter
 	\subfile{tex/100.intro.tex}
 	\subfile{tex/200.techbg.tex}
-	\subfile{tex/300.case_study.tex}
+	\subfile{tex/300.case.tex}
 	\subfile{tex/400.multicore.tex}
 	\subfile{tex/500.mic.tex}
 	\subfile{tex/600.cuda.tex}
 	\subfile{tex/900.conclusions.tex}
-	\subfile{tex/909.future_work.tex}
+	\subfile{tex/909.futurework.tex}
 	
 	\backmatter
 	\printbibliography
-	\appendix
+	% \appendix
 
 \end{document}

@@ -2,8 +2,10 @@
 
 \begin{document}
 	\chapter{Introduction}
+	\label{chp:intro}
+
 	\tdi{Context: The evolution of multiprocessing systems}
-	\tdi{talk about SISD, SIMD & MIMD}
+	\tdi{talk about SISD, SIMD \& MIMD}
 
 	\section{Motivation and Goals}
 	Previous work on this algorithm has been focused mainly on implementing it in a \cpu shared memory environment; heterogeneous distributed memory environments are still unexplored. Also, other linear algebra projects oriented at \gpus lack implementations for this algorithm. The resources made available in the recent hardware accelerators hold great potential to improve performance.
@@ -15,11 +17,11 @@
 	Each implementation is evaluated quantitatively. The multicore implementation provides a scalability test to help analyse the behaviour of the algorithm, while the other two provide an overview of the computation impact of the algorithm when executed in an hardware accelerator.
 
 	\section{Document Organization}
-	Chapters 1 and 2 provide the background information required to conveniently contextualize the reader. In particular, Chapter 1 provides an overview over the evolution of \hpc, the hardware characteristics of heterogeneous platforms and the challenges faced by programmers in this area. It also covers some tools to aid with these issues.
+	\Cref{chp:techbg,chp:case} provide the background information required to conveniently contextualize the reader. In particular, \cref{chp:techbg} provides an overview over the evolution of \hpc, the hardware characteristics of heterogeneous platforms and the challenges faced by programmers in this area. It also covers some tools to aid with these issues.
 
-	The following chapters focus on the three mentioned implementations. Chapter 3 describes the multicore implementations and further contextualizes the reader with the case study. It also presents the scalability test results and the consequent analysis. Chapter 4 focuses on the implementation target for the Intel \mic architecture, the results obtained and optimizations for a better tuning. In a similar fashion, Chapter 5 does the same for the CUDA implementation.
+	The following chapters focus on the three mentioned implementations. \Cref{chp:multicore} describes the multicore implementations and further contextualizes the reader with the case study. It also presents the scalability test results and the consequent analysis. \Cref{chp:mic} focuses on the implementation target for the Intel \mic architecture, the results obtained and optimizations for a better tuning. In a similar fashion, \cref{chp:cuda} does the same for the CUDA implementation.
 
-	Lastly, Chapters 6 and 7 present the conclusions of this dissertation and suggestions for future work, including further optimization opportunities and identified unexplored approaches.
+	Lastly, \cref{chp:conclusions,chp:futurework} present the conclusions of this dissertation and suggestions for future work, including further optimization opportunities and identified unexplored approaches.
 
 	\tdi{Context: The evolution of the matrix square root}
 	\tdi{Terminology}
