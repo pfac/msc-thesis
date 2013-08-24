@@ -1,0 +1,23 @@
+%!TEX root = ../main.tex
+\section{Introduction}
+\label{sec:intro}
+
+% \subsection{Context}
+Until the beginning of the XXI century \cpu manufacturers focused in producing a single, very powerful processor chip, with a very long and complex execution pipeline and very high clock frequency. The limits imposed by the materials ended this trend, as new chips were starting to show aggravated problems such as heat dissipation. In that moment, hardware development turned in a new direction, replacing old single heavy core \cpus with multiple simpler cores (shorter pipelines and lower clock frequency) able to work in parallel. This gave life not only to new \cpu architectures, but also to new devices designed specifically to achieve better performance with massive parallelism.
+
+Systems built using \cpus and these hardware accelerators are called \hetplats. These platforms implement a distributed memory architecture, as each hardware accelerator has its own separated memory space, in addition to the \cpu memory space. On the other hand, multi-core homogeneous platforms implement a shared memory architecture.
+
+The \acf{NAG}\cite{NAG} delivers a highly reliable commercial numerical library containing several specialized multi-core functions for matrix operations. While the \nag library includes some implementations for CUDA-enabled \gpus in heterogeneous platforms, it has yet no matrix square root function optimized for these devices \cite{NAG:GPU:0:6}.
+
+\magma is a project that aims to develop a dense linear algebra library similar to LAPACK but for heterogeneous/hybrid architectures, starting with current CPU+GPU systems. At the moment, \magma already includes implementations for many of the most important algorithms in Matrix Algebra but not for the computation of the square root \cite{PLASMA:MAGMA}. This feature is also not implemented in any of the major GPU accelerated libraries listed by \nvidia \cite{ACCELEREYES:WIKI:SQRTM,CULA:LAPACK,NVIDIA:CUBLAS:5:0,NVIDIA:CUSPARSE:5:0,CUSP:FEATURES}.
+
+In a previous work, E.Deadman et al. \cite{Deadman:Higham:Ralha:2012} devised a blocked approach to the Schur method to compute the square root of a matrix in a multi-core environment. While blocked approaches are able to make a more efficient use of the memory hierarchy, they are also very well suited for devices designed for vector processing, such as \acfp{GPU} and devices based on the \acf{MIC} architecture.
+
+% \subsection{Motivation and Goals}
+Being the square root of a matrix a common operation to compute in problems from several fields (Markov models of finance, the solution to differential equations, computation of the polar decomposition and the matrix sign function) \cite{Higham:2008:FM}, creating an optimized implementation would make possible for more complex problems to be studied \cite{Hill:Marty:2008}.
+
+Previous work on this algorithm has been focused mainly on implementing it in a \cpu shared memory environment; heterogeneous distributed memory environments are still unexplored. Also, other linear algebra projects oriented at \gpus lack implementations for this algorithm. The resources available in the recent hardware accelerators hold great potential to improve performance.
+
+Throughout this dissertation the goal will be to implement a fine-tuned version of the blocked Schur method for the matrix square root in, at least, one type of hardware accelerator device. The focus will be given primarily to \gpus, with the possibility of extending it to \mics.
+
+Since previous work was focused primarily in studying the impact of a blocked approach to the algorithm, a study of the scalability in a multi-core environment is also necessary, as it can help pointing out the best strategy for an implementation in a heterogeneous platform.

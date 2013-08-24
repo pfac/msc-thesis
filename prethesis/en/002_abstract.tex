@@ -1,0 +1,12 @@
+\newpage
+\begin{otherlanguage}{english}
+	\begin{abstract}
+Recent colaborative work between the \acf{NAG} and the \acf{UMinho} presented a blocked approach to the matrix square root algorithm which showed great improvements in a multi-core shared memory environment.
+
+Matrix algorithms often deal with large amounts of data at a time, which impairs efficient cache memory usage. Blocked approaches have the benefit of breaking the data domain in chunks sized to maximize cache efficiency.
+
+While the results show improvements for a shared memory environment, distributed memory architectures were left unexplored. In these systems data is distributed accross several shared memory spaces, including those associated to specialized accelerator devices, such as a \acs{GPU}. These latter systems are usually known as \aclp{HetPlat}.
+
+This dissertation focus on porting the blocked matrix square root algorithm implementation to an heterogeneous platform exploring highly tuned implementations for hardware accelerators.
+	\end{abstract}
+\end{otherlanguage}

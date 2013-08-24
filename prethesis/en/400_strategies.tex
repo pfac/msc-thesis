@@ -1,0 +1,68 @@
+%!TEX root = ../main.tex
+\section{Strategies for Efficient Implementations}
+\label{sec:implementations}
+
+\subsection{Algorithmic Approach}
+In \cite{Deadman:Higham:Ralha:2012} E.Deadman et al. presented a blocked approach for this method. Two blocked versions were implemented: the standard version would split the domain in blocks of a given fixed size, while the recursive version solved the problem by recursively splitting the matrix into smaller blocks until the block size reaches a given value (ideally small enough to maximize the cache efficiency). After splitting, the algorithm uses the standard non-blocked point method to solve each block independently. The dependencies for each block are similar to those of a single element (all blocks on the left and below).
+
+Blocking is a typical optimization technique for problems with a very large data set. In order to preserve and reuse the data in the memory levels closer to the \cpu, computation is focused on a small subset. This improves the application ability to take advantage of locality, both temporal and spatial, thus effectively reducing memory bandwidth pressure \cite{Intel:CacheBlockingTechniques}.
+
+Results for the superdiagonal implementations showed speedups around 2 and 3 for the blocked method (both standard and recursive), only by using threaded BLAS for parallelism.
+The point method does not use BLAS.					
+Additionally, using OpenMP directives, the point method attained a speedup of 2 and standard blocking a speedup of 5.5.
+The recursive blocked approach did not achieve better results due to the increased synchronization points in the multiple recursion levels.
+
+
+\subsection{Shared Memory}
+\label{sec:implementations:sharedmem}
+This \namecref{sec:implementations:sharedmem} presents the analysis study already performed porting the original \nag code in Fortran90 and MATLAB to a C/C++ freeware environment. The following sections detail the algorithm implementations for a shared memory environment.
+
+Two facts are assumed at this time:
+\begin{itemize}
+	\item the supplied matrix has a principal square root;
+	\item the supplied matrix is upper triangular.
+\end{itemize}
+These assumptions have important effects in the complexity of the implementations. Removing the first would imply checking the matrix eigenvalues. Removing the second would imply performing a Schur decomposition. While both operations are required in a complete application, for this preliminary study of the core algorithm both, may not be considered.
+
+None of the blocked implementations uses the recursive splitting method. Previous results show that the excessive synchronization in each recursion level increases execution time when exploring the parallelism of the algorithm. Alternatively, results also show that this method is the fastest when using only threaded \blas.
+
+The Armadillo library \cite{Armadillo:2010} helped to port the application to C/C++. This package provides data structures and functions for linear algebra applications using C++ in a syntax similar to MATLAB code. This allowed for a faster development of the column implementation, which was the original version in MATLAB.
+
+A Fortran90 implementation was supplied later. Using this version as reference, after the column and superdiagonal implementations were completed, the correctness of the new code was validated by directly comparing the obtained relative error which each implementation. \nag's Fortran90 code depends on MATLAB in order to generate an executable and manage the preparation and the required cleanup around the computation. This dependency presented two problems: it prevents the integration of the code with the development tools being used; and the \texttt{mex} functions for the preparation may introduce different errors in the final results. Consequently, the MATLAB dependencies were replaced by a C++ wrapper using the Armadillo library, which allowed to overcome those limitations.
+
+While Armadillo makes linear algebra functions available to the developer, it also supports several optimized \blas and \lapack packages, such as \intel\mkl and OpenBLAS.
+
+
+\subsubsection{Column and Row approaches}
+The two implementations, column-oriented and row-oriented, are similar. They both iterate over one dimension of the matrix, computing a column or row at a time, respectively. Due to the existing dependencies, only one element is ready to be computed at any given time, which prevents parallelism. In \cite{Deadman:Higham:Ralha:2012} only the column implementation was studied, since arrays in Fortran are column-major. In C/C++, on the other hand, arrays are usually stored as row-major\footnote{C/C++ allows to store arrays as column-major by swapping the conceptual meaning of the two indices.}, which makes it preferable to study the row implementation. The column implementation was used as an initial reference, since it was the version provided in MATLAB code.
+
+The row implementation starts by iterating over the rows, upwards. This way no row has unresolved dependencies below. In each row, columns are iterated from left to right. The resulting value for elements outside the main diagonal is given by solving \cref{eq:sqrtm:ndiag}, which performs a dot product with all the elements between the target and the main diagonal. In \cref{fig:dependencies:named}, $\alpha$ and $\beta$ are the elements of the main diagonal in the positions $(i,i)$ and $(j,j)$, respectively. $x$ contains the elements in line $i$, between $\alpha$ and $U_{ij}$; $y$ contains those in column $j$, between $U_{ij}$ and $\beta$. The final value for $U_{ij}$ is computed by subtracting  the sum of all the elements in $x$ multiplied by the respective elements in $y$ (the dot product $x \cdot y$) to $T_{ij}$, divided by $\alpha + \beta$.
+
+\begin{figure}[!htp]
+	\begin{center}
+		\includegraphics[width=.5\textwidth]{dependencies_named.png}
+	\end{center}
+	\caption[Element walkthrough]{The target element $X_{ij}$ is computed subtracting the dot product of $x$ and $y$ and dividing the result by the sum of $\alpha$ and $\beta$.}
+	\label{fig:dependencies:named}
+\end{figure}
+
+For the block method, the target block is computed by solving the Sylvester equation
+$$FX+XG+C=0$$
+where $F$ is the $X_{ii}$ block, $-G$ is the $X_{jj}$ block and
+\begin{IEEEeqnarray*}{rCl}
+C & = & \sum^{j-1}_{k=i+1}{X_{ik}X_{kj}}\enspace .
+\end{IEEEeqnarray*}
+
+
+\subsubsection{Superdiagonal}
+In \cite{Deadman:Higham:Ralha:2012} the authors compare the superdiagonal approach with the column/row by stating that while the former allows to take advantage of parallelism, the latter allows a more efficient use to be made of cache memory. While at first sight this seems correct, the fact is that between any two consecutive elements in a diagonal the spacing is always the same. With proper tuning, the application can take advantage of strided memory accesses, effectively populating the cache only with the required elements of the diagonal.
+
+The superdiagonal implementation computes the main diagonal and goes up, computing one diagonal at a time. In each diagonal, blocks are computed top down. The coordinates of each block $T_n$ inside the matrix is given by
+\begin{IEEEeqnarray*}{rCl}
+T_n(0,0) & = & n \times b\enspace ,\\
+T_n(0,1) & = & \mathrm{min}\left(  (n+1)*b , n  \right) -1\enspace ,\\
+\\
+T_n(1,0) & = & (n+d) \times b\enspace ,\\
+T_n(1,1) & = & \mathrm{min}\left(  (n+d+1) \times b , n \right) -1\enspace .
+\end{IEEEeqnarray*}
+where $b$ is the block size, $d$ is the index of the diagonal (starting in zero for the main diagonal) and $n$ is the index of the block (starting in zero for the topmost one). For the point method the implementation is similar to $b=1$.

@@ -1,0 +1,19 @@
+\newpage
+\begin{otherlanguage}{portuguese}
+	\begin{abstract}
+		\begin{center}
+			\parbox{.8\textwidth}{\bfseries\larger\larger
+				\begin{center}
+					Computação Eficiente da Raíz Quadrada de Matrizes em Plataformas Heterogéneas
+				\end{center}
+			}
+		\end{center}
+Um trabalho recente de colaboração entre o \acf{NAG} e a \acf{UMinho} apresentou uma abordagem por blocks para o algoritmo da raíz quadrada de matrizes, onde se mostrou melhorias significativas num ambiente multi-core de memória partilhada.
+
+Algoritmos de matrizes normalmente lidam com grandes quantidades de dados, o que dificulta uma utilização eficiente da cache. Abordagens por blocos têm a vantagem de particionar o domínio em parcelas dimensionadas para maximizar a eficiência da cache.
+
+Enquanto que os resultados mostram melhorias num ambiente de memória partilhada, arquitecturas de memória distribuída foram deixadas por explorar. Nestes sistemas os dados são distribuídos por diversos espaços de memória, incluindo aqueles associados a dispositivos aceleradores especializados, como um \acs{GPU}. Estes sistemas são frequentemente conhecidos como plataformas heterogéneas.
+
+Esta dissertação concentra-se na implementação do algoritmo da raíz quadrada de uma matriz por blocos numa plataforma heterogénea e em obter uma implementação altamente optimizada usando aceleradores de hardware.
+	\end{abstract}
+\end{otherlanguage}

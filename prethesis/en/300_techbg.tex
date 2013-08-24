@@ -1,0 +1,110 @@
+%!TEX root = ../main.tex
+\section{Technological Background}
+
+\subsection{Heterogeneous Platforms}
+As stated in \cref{sec:intro}, the evolution of high performance computing hardware turned towards systems containing multiple devices of different kinds, each capable of computing several operations in parallel. Several of the most efficient computing systems worldwide at the top 10 supercomputers in the TOP500 list\footnote{\url{http://www.top500.org/}} are composed of several interconnected computing nodes, each with multiple multi-core \cpus with one or more specialized hardware accelerators. \gpus and \intel Xeon Phi devices are currently the most popular accelerator devices.
+
+The development of these new specialized devices was triggered by the trend to increase the number of cores in computing hardware. Most hardware accelerator architectures are biased tp the \simd approach while \nvidia uses in their \gpu architecture the \simt approach. \simd architectures have multiple processing elements that simultaneously perform the same operation on multiple data. \mics and \gpus also use massive multithreading to split the workload between the multiple processing cores available. These devices are designed for data parallelism, e.g.\ to maximize throughput by applying the same operations to large amounts of data.
+
+Many-core accelerator devices suffer from the same limitations as conventional processor architectures regarding memory latency, despite the many strategies each one implements to hide or overcome the problem. Since the connection between the \cpu and an accelerator is typically performed over a \pcie interface, using the same memory banks would be a major bottleneck. For this reason, most hardware accelerators are built with their own memory banks, which are managed in a space distinct from that of the \cpu.
+
+\subsubsection{The \acs{GPU} as an accelerator device}
+Nowadays, \gpus are the most popular hardware accelerator being used in \hpc. These devices evolved in the field of image processing, where each pixel is usually independent of those around. For this reason, \gpus were designed from scratch to be able to perform the same simple operation using huge amounts of data.
+
+In recent years, manufacturers have been enabling these devices to execute code produced for other purposes besides image rendering, effectively creating \gpgpus. Programming these accelerators is not a trivial task since it requires knowledge of the underlying architecture in order to be able to take full advantage of the device capabilities. The \gpu implementations described throughout this document will be targeted at \nvidia devices using the \nvidia's \cuda framework, since it is the dominant proprietary framework for \gpgpu programming. For this reason, the architectural characteristics of \gpgpus will be described using \cuda terminology.
+
+
+\paragraphh{General Architecture}
+\gpus are composed by several computing units called \sms connected to the global device memory (GDDR5 RAM). Inside, each \sm contains
+\begin{itemize}
+\item a large set of \cuda cores (the processing units that perform the integer and floating point arithmetic operations);
+\item \sfus: square roots, trigonometric functions,\ldots;
+\item Load and Store units;
+\item Registers;
+\item Cache L1, shared amongst all cores;
+\item a scheduler to map threads to the cores.
+\end{itemize}
+
+In \cuda, a kernel represents a set of instructions to be executed as a parallel task. These parallel tasks are constituted by a set of \cuda threads, which execute the same instructions on different data (follow both \simd and \simt approaches). \cuda threads are organized in a hierarchy: blocks aggregate threads assigned to the same \sm, and the set of all the blocks running the same kernel is a grid.
+
+Inside a \sm, the scheduler groups up to 32 threads from the same block into warps, which are then set to run on the \sm at a given time. Since warps group threads running the same instruction of the kernel at any given time, conditional jumps are very expensive. When a conditional jump is met, if divergence occurs, it causes the two conditional branches to be executed consecutively, doubling the warp execution time.
+
+While scheduling warps for execution, the scheduler holds them in a scoreboard waiting for data and issues warps containing those ready for execution with very low switching time. For this reason, these devices benefit from having a lot more threads than those able to run concurrently, as it helps hiding the memory latency.
+
+When accessing memory in a \cuda kernel, coalesced memory accesses are required in order to achieve an efficient memory usage. Coalesced accesses happen when the threads in a warp access global memory at the same time asking for contiguous addresses. Since the load units are able to retrieve data from memory in blocks, this results in more data being fetched with less accesses. Coalesced accesses also help the memory controller to find the best grouping of threads to merge the requests into fewer memory accesses.
+
+Communication between the device and the host \cpu is very expensive, since \gpus are connected by a \pcie interface, which is restricted to 12 GB/s (6 GB in each direction). For this reason, this kind of communication must be kept to a minimum in order to maximize performance.
+
+
+\paragraphh{\nvidia Fermi Architecture}
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=.5\textwidth]{fermi.png}
+	\end{center}
+	\caption{Overview of the Fermi architecture.}
+	\label{fig:fermi}
+\end{figure}
+A \gpu based on the Fermi architecture features up to 512 \cuda cores, organized in up to 16 \sms of 32 cores each. Additionally, each \sm has 4 \sfus and 16 load/store units capable of fetching blocks of 128 bits.
+
+While double precision support has been available since the previous G80 architecture, the Fermi architecture was specifically designed to work with double precision, having the ability to perform up to 16 fused multiply-add operations per \sm per clock. When working with single precision, the two Warp Schedulers and Instruction Dispatch Units in a single \sm allow to issue and execute two warps concurrently in either a group of 16 cores, 16 load/store units or 4 \sfus.
+
+The device has a 384-bit memory interface split amongst six memory partitions, supporting up to 6 GB GDDR5 global memory with a bandwidth of 192.4 GB/s. Additionally, the \sms are also placed around a shared 768 KB unified L2 cache. Each \sm has also 32768 registers (up to 63 registers per thread) and 64 KB of configurable memory to be split between the shared memory and the L1 cache in a 16+48 combination, either way \cite{NVIDIA:FERMI}.
+
+\paragraphh{\nvidia Kepler Architecture}
+\begin{figure}[!htp]
+	\begin{center}
+		\includegraphics[width=.5\textwidth]{kepler.jpg}
+	\end{center}
+	\caption{Overview of the Kepler architecture.}
+	\label{fig:kepler}
+\end{figure}
+
+Kepler devices contain up to 15 \smx, an improved version of \sm, with more smaller cores, working at half the clock frequency. L2 cache size was doubled to 1536 KB. Each individual \smx contains up to 192 cores and the double of the registers in a Fermi \sm. The maximum number of registers per thread was increased to 255, the Kepler architecture adds a new 48 KB read-only data cache and a new 32+32 configuration for the L1 cache and shared memory.
+
+Some of the new features of this architecture are mainly targeted at programming, such as the introduction of dynamic programming and Hyper-Q. Dynamic programming allows the device to generate work for itself, therefore enabling it to adapt to the amount and form of parallelism through the program's execution. Hyper-Q enables the cores from the same \cpu to launch kernels in the same \gpu. Multiple kernels launched in the same \gpu will be scheduled to different \smx.
+
+Load units in the Kepler architecture are capable of getting blocks of 256 bits \cite{NVIDIA:KEPLER}.
+
+
+\subsubsection{\acf{MIC}}
+The \mic architecture \cite{Intel:XeonPhi:DevGuide} is \intel's response to the increased demand for \gpgpus as massively parallel hardware accelerators. The conceptual design of these coprocessors is distinct from \gpgpus and it follows \intel's trend to increase the number of cores in its products. These devices are targeted at memory bound problems, unlike \gpus, but \intel will also launch a different version of the chip specially tuned for compute bound problems.
+
+The resulting product, \intel\xeon Phi, contains up to 61 multi-threaded in-order cores, with $4\times$ HyperThreading, running at up to 1.3 GHz. The chip has 32 512-bit wide vector registers per core (16 single precision float point values), 512 KB of L2 cache per core and is connected to 6 to 8 GB of GDDR5 RAM in the coprocessor (providing a throughput of 320 GB/s).
+
+The L2 caches of all the cores in a \xeon Phi are interconnected with each other and the memory controllers through a ring bus, effectively creating a shared last-level cache of up to 32 MB.
+
+\intel claims that porting \cpu code to these devices is easy, since they use the same instruction set as conventional x86; however, tuning is most probably required in order to achieve good performance.
+
+
+
+
+\subsection{Development Tools for \aclp{HetPlat}}
+\label{sec:techbg:software}
+Most developers use conventional sequential programming models, as this is the most natural way to plan the resolution of a given problem, one step at a time. For single-core systems, this worked perfectly, with the only parallelism in applications begin extracted by the compiler at the instruction level. But the transition to the multi-core era brought together a new programming paradigm, which must be understood in order to fully take advantage of the most modern computing resources available.
+
+Making the transition to parallel programming is not trivial. The ability to concurrently run several execution threads exposes the programmer to new problems: data races, workload balancing, atomic operations, deadlocks, etc. Debugging parallel applications is also harder and it requires smarter approaches, better than simply tracing the code (anything with more than four threads will be very hard to keep track of). The problem becomes even more complex when dealing with \hetplats. Often a developer must be aware of the underlying architectural details in order to create an efficient implementation.
+
+Several tools have been presented, specially in the latest years, as multi-core shared memory environments and \hetplats become increasingly more popular. Frameworks have been developed to abstract the programmer from architectural details and the complexities of adapting code to run in a new platform. Some of the available tools are presented in this \namecref{sec:techbg:software}.
+
+\subsubsection{OpenMP and \acs{TBB}}
+OpenMP\cite{OpenMP:3.1} is a standard API, in C/C++ and Fortran, for introducing multithreading parallelism in a shared memory application. The API itself is very simple and easy to use, abstracting an inexperience programmer from all the complexity of managing threads, but without lacking the required tools for advanced users to perform any kind of fine tuning. It is also portable and scalable.
+
+OpenMP only addresses homogeneous systems with conventional \cpus. Its schedules automatically efficient load distributions among all available cores.
+
+\tbb is a C++ template library created by \intel with a similar purpose to OpenMP. While it is a lot more verbose than OpenMP, and lacks support for other languages, \tbb provides algorithms, highly concurrent containers, locks and atomic operations, a task scheduler and a scalable memory allocator \cite{TBB}. It is harder to program than OpenMP, but \intel claims it to achieve equivalent or better performance.
+
+While both these frameworks have originally been designed for shared memory applications, \tbb has been extended to support the \xeon Phi \cite{Intel:XeonPhi:DevGuide}.
+
+\subsubsection{OpenMPC and OpenACC}
+OpenMPC\cite{OpenMPC} consists in an extension of the OpenMP specification to provide translation from  regular OpenMP directives to \cuda code.
+
+Parallel zone directives delimit the blocks of code candidate for \cuda kernels. Only loop and section directives are considered true parallel sections, which are translated to perform workload distribution amongst the available threads. Synchronization directives cause the kernels to be split, as this is the only way to force global synchronization amongst all threads. Directives specifying data properties are interpreted to find the best \gpu memory space for the required data.
+
+OpenACC\cite{OpenACC:1.0} is a standard API, in the same languages as OpenMP, meant to bring the advantages of OpenMP to \gpu programming. While originally designed only for \gpus, support has been extended for \mics. It abstracts the programmer from the memory management, kernel creation and the accelerator management. It also allows to execute both on the device and the \gpu host at the same time.
+
+% OpenHMPP\cite{OpenHMPP:2.5} is a superset of OpenACC, originally created by one of the OpenACC's founding companies. The goal of this specification is to be targeted at more abstract hardware accelerators, without the complexity associated with GPU programming.
+
+Comparing, OpenMPC only provides support only for \cuda-enabled devices, while OpenACC supports \nvidia and \amd\gpus alike and \intel\mic devices.
+
+\subsubsection{GAMA}
+The \ac{GAMA} framework follows a similar approach to OpenACC but with a distinct goal. It too abstracts the underlying architecture details of \hetplats, aiding the developer by taking care of workload distribution, memory usage and data transfers between the available resources. Yet, instead of focusing in abstracting the programmer from the architecture, it focus in achieving the best possible performance. Consequently, this translates in more effort for the programmer.
