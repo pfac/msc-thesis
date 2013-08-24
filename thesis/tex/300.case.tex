@@ -2,45 +2,59 @@
 \documentclass[../thesis]{subfiles}
 
 \begin{document}
-	\chapter{Case Study: The Matrix Square Root on Heterogeneous Platforms}
+	\chapter[Case Study]{Case Study: The Matrix Square Root on Heterogeneous Platforms}
 	\label{chp:case}
 	\chaptermark{Case Study}
 
-	The square root of a matrix $A$ is any matrix $X$ that satisfies the equation
 	\begin{IEEEeqnarray}{rCl}
-		A & = & X^2\enspace\mathrm{,}\IEEElabel{eq:sqrtm}
+		A & = & X^2\IEEElabel{eq:sqrtm}
 	\end{IEEEeqnarray}
-	When it exists, it is not unique, but when $A$ does not have any real negative eigenvalues it has a unique square root whose eigenvalues all lie in the open right half plane (i.e. have non-negative real parts) \cite{Higham:2008:FM}. This is the so-called principal square root $A^{1/2}$ and since it is the one usually needed in applications, it is the one the algorithm and respective implementations in this document are focused in computing.
 
-	The Schur method of Björck and Hammarling \cite{bjorck:hammarling:1983} is the most numerically stable method for computing the square root of a matrix. It starts by reducing the matrix $A$ to upper triangular form $T$. By computing the square root of $T$ (let $U$ be such a matrix), also upper triangular, the same recurrence relation allows to compute $X$, thus solving \cref{eq:sqrtm}. The matrix $U$ is computed by solving
+	\tdg{the square root of a matrix}%
+	The square root of a matrix $A$ is any matrix $X$ that satisfies \cref{eq:sqrtm}. \tdg{the principal square root is unique and it is the one we want}When it exists it is not unique, but when $A$ does not have any real negative eigenvalues it has a unique square root whose eigenvalues all lie in the open right half plane (i.e. have non-negative real parts) \cite{Higham:2008:FM}. This is the so-called principal square root $A^{1/2}$ and since it is the one usually needed in applications, it is the one the algorithm and respective implementations in this document are focused in computing.
+
+	\tdg{the shur method of bjork and hammarling}%
+	The Schur method of Björck and Hammarling \cite{bjorck:hammarling:1983} is the most numerically stable method for computing the square root of a matrix. It starts by reducing the matrix $A$ to upper triangular form $T$. By computing $U$, the square root of $T$, also upper triangular, the same recurrence relation allows to compute $X$, thus solving \cref{eq:sqrtm}. The matrix $U$ is computed by solving \cref{eq:sqrtm:diag0,eq:sqrtm:diagN}. This method is implemented in MATLAB as the \texttt{sqrtm} and \texttt{sqrtm\_real} functions \cite{Higham:MFT}.
+
 	\begin{IEEEeqnarray}{rCl}
 		U_{ii}^2 & = & T_{ii}\enspace\mathrm{,}\IEEElabel{eq:sqrtm:diag0}\\
 		U_{ii} U_{ij} + U_{ij} U_{jj} & = & T_{ij} - \sum_{k=i+1}^{j-1}{U_{ik} U_{kj}}\enspace\mathrm{,}\IEEElabel{eq:sqrtm:diagN}
 	\end{IEEEeqnarray}
-	This method is implemented in MATLAB as the \texttt{sqrtm} and \texttt{sqrtm\_real} functions \cite{Higham:MFT}.
 
-	The scope of this document focus on expanding the work of \citeauthor{Deadman:Higham:Ralha:2012} by solving \cref{eq:sqrtm:diag0,eq:sqrtm:diagN} using the resources available in modern heterogeneous platforms.
+	\tdg{deadman's block method and the advantages of blocking}%
+	\citewithauthor{Deadman:Higham:Ralha:2013} devised equivalent blocked methods for this algorithm. Blocking is a typical optimization technique for problems with a very large data set, which improves cache efficiency both in \cpus and hardware accelerators \cite{Lam:1991,Nath:2010,Intel:CacheBlockingTechniques}. It preserves and reuses the data in the fastest (but smallest) levels of the memory hierarchy by limiting the computation to a subset of the domain at a time. This improves the application ability to take advantage of locality, both temporal and spatial, thus effectively reducing memory bandwidth pressure.
+
+	\tdg{where I come in}%
+  Given that only multi-core environments were explored, the scope of this dissertation focuses on implementing the block method using  the resources available in modern heterogeneous platforms.
 
 	\section{Strategies}
+		\tdg{dependencies}%
 		\Cref{eq:sqrtm:diag0,eq:sqrtm:diagN} describe an algorithm where each element depends on those at its left in the same row and those below in the same column. Consequently, the algorithm can be implemented either a column/row or a superdiagonal at a time.
 
+		\tdg{column/row}%
 		While the first strategy (column/row) is preferred for any serial implementation due to a more efficient use of cache memory (better locality), it presents almost\footnote{It is possible for this strategy to solve its dependencies in parallel. The following chapters will show this with more detail.} no opportunities for parallelism since no more than one element is ready to be computed at any given time.
 
-		On the other hand, computing a superdiagonal at a time allows for several elements to be computed in parallel, as all the dependencies were computed in the previous superdiagonals.
+		\tdg{super-diagonal}%
+		On the other hand, computing a super-diagonal at a time allows for several elements to be computed in parallel, as all the dependencies were computed in the previous super-diagonals.
 
 	\section{Methods}
-		In the previous work of \citeauthor{Deadman:Higham:Ralha:2012}\xspace\cite{Deadman:Higham:Ralha:2012}, the authors devised a blocked algorithm to compute the square root of a matrix. Similar to the original, the blocked algorithm lets $U_{ij}$ and $T_{ij}$ in \cref{eq:sqrtm:diag0,eq:sqrtm:diagN} refer to square blocks of dimension $m \ll n$ ($n$ being the dimension of the full matrix).
+		\tdg{block method math}%
+		In the previous work of \citeauthor{Deadman:Higham:Ralha:2013}\xspace\cite{Deadman:Higham:Ralha:2013}, the authors devised a blocked algorithm to compute the square root of a matrix. Similar to the original, the blocked algorithm lets $U_{ij}$ and $T_{ij}$ in \cref{eq:sqrtm:diag0,eq:sqrtm:diagN} refer to square blocks of dimension $m \ll n$ ($n$ being the dimension of the full matrix).
 
-		The blocks $U_{ii}$ (in the main diagonal) are computed using a non-blocked implementation as described previously.
-		The remaining blocks are computed by solving the Sylvester equations \labelcref{eq:sqrtm:diagN}.
+		\tdg{block method operations}%
+		The blocks $U_{ii}$ (in the main diagonal) are computed using the non-blocked implementation described previously.
+		The remaining blocks are computed by solving the Sylvester equation \labelcref{eq:sqrtm:diagN}.
 		The dependencies can be solved with matrix multiplications and sums.
-		Where available, these operations can be performed using the LAPACK \texttt{xTRSYL} and Level 3 BLAS \texttt{xGEMM} calls.
+		Where available, these operations can be performed using the LAPACK \texttt{TRSYL} and Level 3 BLAS \texttt{GEMM} calls, respectively.
 
-		Two blocked methods were devised in \cite{Deadman:Higham:Ralha:2012}: a standard blocking method, where the matrix is divided once in a set of well defined blocks; and a recursive blocking method, where blocks are recursively divided into smaller blocks, until a threshold is reached. This allows for larger calls to \texttt{xGEMM}, and the Sylvester equation can be solved using a recursive algorithm by \cite{Jonsson:Kagstrom:2002}.
+		\tdg{recursive blocking}%
+		Two blocked methods were devised: a standard blocking method, where the matrix is divided once in a set of well defined blocks; and a recursive blocking method, where blocks are recursively divided into smaller blocks, until a threshold is reached. This allows for larger calls to \texttt{GEMM}, and the Sylvester equation can be solved using a recursive algorithm by \cite{Jonsson:Kagstrom:2002}.
 
-		While the recursive method achieved better results in the serial implementations, using explicit parallelism the multiple synchronization points at each level of the recursion decreased the performance, favouring the standard blocking method. Given the devices targeted by this document's work, where explicit parallelism is required to take full advantage of the architecture, the recursive method is ignored.
+		\tdg{why recursive blocking is not worth it}%
+		While the recursive method achieved better results in the serial implementations, when using explicit parallelism the multiple synchronization points at each level of the recursion decreased the performance, favouring the standard blocking method. Given the devices targeted by this document's work, where explicit parallelism is required to take full advantage of the architecture, the recursive method is ignored.
 
-		Using the same terminology as in \cite{Deadman:Higham:Ralha:2012}, the non-blocked and standard blocked methods will be referred to hereafter as the point and block method, respectively.
+		\tdg{terminology}%
+		Using the same terminology, the non-blocked and standard blocked methods will be referred to hereafter as the point and block method, respectively.
 
 
 \end{document}

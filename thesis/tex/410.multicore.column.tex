@@ -3,6 +3,7 @@
 
 \begin{document}
 	\section{Column/Row}
+	\tdg{MATLAB reference implementation, assumptions and limitations}%
 	The implementation of the matrix square root algorithm was based on a MATLAB implementation of the algorithm for real upper triangular matrices from \cite{Deadman:Higham:Ralha:2013} and, as such, holds the same assumptions:
 		\begin{enumerate}
 			\item The input matrix is already in triangular form, being a perfect upper triangular real matrix;
@@ -10,6 +11,7 @@
 		\end{enumerate}
 	In other words, this implementation does not support complex arithmetic, neither does it support quasi-triangular matrices. It also does not compute the eigenvalues of the input matrix in order to check if the principal square root exists for that matrix. These assumptions allow to focus the efforts towards implementing the algorithm at the core of the process for the resources available in heterogeneous systems, instead of implementing and validating multiple full featured solutions.
 
+	\tdg{the point method using the column strategy}%
 	This reference implementation uses the column strategy, i.e., computes the square root matrix one column at a time. \Cref{alg:sqrtm:column:point} shows the algorithm for this strategy. Columns are swept from left to right and in each column rows are traversed from the main diagonal up. The main diagonal element has no dependencies, it is computed straight away. All the other elements depend on those on its left and below. Solving the dependencies for a given element $U_{ij}$ outside the main diagonal consists in multiplying the sub-row in $i$ from the main diagonal to the column $j-1$ by the sub-column in $j$ from the row $i+1$ down to the main diagonal.
 
 	\begin{algorithm}[htp]
@@ -41,6 +43,7 @@
 		}
 	\end{algorithm}
 
+	\tdg{the block method using the column strategy}%
 	A block implementation of this algorithm consists in expanding the indices $i$ and $j$ to ranges. Given the assumptions for these implementations, the blocks can be thought of a regular grid of squares where only the blocks in the last row and column may have smaller dimensions (in case the block size is not a multiple of the matrix dimension). In fact, due to the upper triangular form of the matrix, only the blocks in the last column may be smaller (the last row is mostly zeros) and all the blocks in the main diagonal are squared.
 
 	\begin{algorithm}[htp]
@@ -92,6 +95,7 @@
 		}
 	\end{algorithm}
 
+	\tdg{the block method algorithm}%
 	\Cref{alg:sqrtm:column:block} shows the blocked algorithm using the column strategy. It seems quite more complex than the point method but it is mostly due to the expansion of indices to ranges. As such most of the algorithm can be directly associated with the previous method, with some small exceptions:
 	\begin{itemize}
 		\item Two variables $x$ and $y$ are added to store the index of the blocks in the grid that lies over the matrix. These variables are used to reach the dependency blocks;
@@ -99,7 +103,9 @@
 		\item The scalar arithmetic is replaced with linear algebra functions. In particular, computing the resulting block after solving the dependencies implies solving a Sylvester equation.
 	\end{itemize}
 
+	\tdg{column vs row}%
 	A row strategy is very similar to the algorithm that computes a column at a time. It consists mainly in swapping the two outer loops, so that the algorithm sweeps the matrix rows, from the bottom upward, and in traversing each row from the main diagonal to the element in the last column. These two strategies are equivalent and fit the two methods for storing multidimensional arrays in linear memory: the column strategy takes advantage of a column-major order used in Fortran, MATLAB and GNU Octave; the row strategy has better locality in a row-major order, typically used in C, C++ and Python.
 
-	While the row-major order is typically used in C++, the Armadillo library uses column-major order by default to improve its compatibility with the standard Fortran interfaces used in BLAS and LAPACK packages.
+	\tdg{this document uses column-major}%
+	While the row-major order is typically used in C++, the Armadillo library use column-major order by default to improve its compatibility with the standard Fortran interfaces used in \blas and \lapack packages. Some libraries, such as CUBLAS, do not even provide a way to configure this behaviour \cite{NVIDIA:CUBLAS:5:0}. For convenience, all the implementations described in this document assume column-major order.
 \end{document}

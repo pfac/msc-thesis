@@ -80,10 +80,17 @@ urldate = "2013-03-04"
 	shortauthor = "NAG",
 	title       = "{NAG Numerical Routines for GPUs Manual}",
 	date        = "2012-04",
-	url         = "http://www.nag.com/numeric/GPUs/naggpu_doc_0.6.pdf",
-	
+	url         = "http://www.nag.com/numeric/GPUs/naggpu_doc_0.6.pdf"
 }
 urldate     = "2013-03-04"
+@online{
+	NAG:MIC,
+	author      = "{The Numerical Algorithms Group}",
+	shortauthor = "NAG",
+	title       = "{NAG Library Manual, Mark 23}",
+	date        = "2013-08",
+	url         = "http://www.nag.com/numeric/fl/nagdoc_Intel_MIC_FS23.3/xhtml/FRONTMATTER/manconts.xml",
+}
 @inproceedings {
 	Mariano:Alves:2012,
 	author = "Artur Mariano and Ricardo Alves and João Barbosa and Luís Paulo Santos and Alberto Proença",
@@ -154,12 +161,12 @@ urldate =      "2013-03-04"
 	howpublished = "\url{http://www.intel.com/content/www/us/en/architecture-and-technology/many-integrated-core/intel-many-integrated-core-architecture.html}",
 	note =         "[Online; accessed November 8, 2012]"
 }
-@misc {
+@online{
 	Intel:CacheBlockingTechniques,
-	author =       "Intel Corporation",
+	author =       "Wendy Doerner",
+	editor =       "Intel Corporation",
 	title =        "{Cache Blocking Techniques}",
-	howpublished = "\url{http://software.intel.com/en-us/articles/cache-blocking-techniques}",
-	note =         "[Online; accessed February 6, 2013]"
+	url = "http://software.intel.com/en-us/articles/cache-blocking-techniques"
 }
 @misc {
 	ACCELEREYES:WIKI:SQRTM,
@@ -262,6 +269,25 @@ urldate = "2013-03-04"
 	publisher = {IEEE Computer Society Press},
 	address = {Los Alamitos, CA, USA},
 }
+@article{
+	Gustafson:1988,
+	author = {Gustafson, John L.},
+	title = {Reevaluating Amdahl's law},
+	journal = {Commun. ACM},
+	issue_date = {May 1988},
+	volume = {31},
+	number = {5},
+	month = may,
+	year = {1988},
+	issn = {0001-0782},
+	pages = {532--533},
+	numpages = {2},
+	url = {http://doi.acm.org/10.1145/42411.42415},
+	doi = {10.1145/42411.42415},
+	acmid = {42415},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+} 
 @inproceedings{
 	OpenMPC,
  author = {Lee, Seyong and Eigenmann, Rudolf},
@@ -351,7 +377,9 @@ urldate = "2013-03-04"
 	pages = {392--415},
 	numpages = {24}
 }
-@article{Higham:1987,
+@article{
+	Higham:1987,
+	author = "Nicholas J. Higham",
     doi = {10.1016/0024-3795(87)90118-2},
     issn = {0024-3795},
     journal = {Linear Algebra and its Applications},
@@ -430,7 +458,7 @@ urldate = "2013-03-04"
 	institution = {The University of Texas at Austin, Department of Computer Sciences},
 	type =        {Technical Report},
 	number =      {TR-12-02},
-	date =        {02-2012}
+	date =        {2012-02}
 }
 @article{
 	Brodtkorb:2010,
@@ -458,3 +486,50 @@ urldate = "2013-03-04"
 	date = {2013-08},
 	url = {http://developer.amd.com/resources/documentation-articles/articles-whitepapers/introduction-to-magny-cours/}
 }
+@online{
+	DrDobbs:MIC:april12,
+	author = "Rob Farber",
+	editor = "Dr. Dobb's",
+	title = "Intel's 50+ core MIC architecture: HPC on a Card or Massive Co-Processor?",
+	date = "2012-10",
+	url = "http://www.drdobbs.com/parallel/intels-50-core-mic-architecture-hpc-on-a/232800139"
+}
+@article{
+	Lam:1991,
+	author = {Lam, Monica D. and Rothberg, Edward E. and Wolf, Michael E.},
+	title = {The cache performance and optimizations of blocked algorithms},
+	journal = {SIGPLAN Not.},
+	issue_date = {Apr. 1991},
+	volume = {26},
+	number = {4},
+	month = apr,
+	year = {1991},
+	issn = {0362-1340},
+	pages = {63--74},
+	numpages = {12},
+	url = {http://doi.acm.org/10.1145/106973.106981},
+	doi = {10.1145/106973.106981},
+	acmid = {106981},
+	publisher = {ACM},
+	address = {New York, NY, USA},
+}
+@article{
+	Nath:2010,
+	author = {Nath, Rajib and Tomov, Stanimire and Dongarra, Jack},
+	title = {An Improved Magma Gemm For Fermi Graphics Processing Units},
+	journal = {Int. J. High Perform. Comput. Appl.},
+	issue_date = {November  2010},
+	volume = {24},
+	number = {4},
+	month = nov,
+	year = {2010},
+	issn = {1094-3420},
+	pages = {511--515},
+	numpages = {5},
+	url = {http://dx.doi.org/10.1177/1094342010385729},
+	doi = {10.1177/1094342010385729},
+	acmid = {1889710},
+	publisher = {Sage Publications, Inc.},
+	address = {Thousand Oaks, CA, USA},
+	keywords = {CUDA matrix mutiply, Fermi, GPU BLAS, dense linear algebra, hybrid computing},
+} 
