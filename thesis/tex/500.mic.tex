@@ -3,42 +3,9 @@
 \begin{document}
 	\chapter{Intel MIC}
 	\label{chp:mic}
-	\section{Architecture}
-	The \intel\xeon Phi Coprocessor contains up to 61 fully functional in-order \intel\mic Architecture cores running at 1GHz (up to 1.3GHz), each containing 64KB of L1 cache (evenly split for data and instructions) and 512KB of L2 cache.
 
-	The device can support 8 memory controllers with two \gddr5 channels each. These support a total of 5.5GT/s, corresponding to a theoretical aggregate bandwidth of 352 GB/s. At the time, the maximum memory size available is 16GB\footnote{\intel\xeonphi Coprocessor 7120X\cite{datasheet:XeonPhi:7120X}}.
-
-	A high performance on-die bidirectional  ring connects the L2 caches, the memory controllers and the \pcie interface logic. The connected L2 caches allows for requests to be fulfilled from other cores' L2 cache faster than it would be from memory, thus implementing a last-level cache with over 30MB. Cache coherency is preserved across the entire coprocessor through a distributed tag directory using a reversible one-to-one hashing function.
-
-	\intel\mic Architecture is based on the x86 \isa, extended with 64-bit addressing and 512-bit wide \simd vector instructions and registers. Yet, it does not support other \simd\isas (\mmx, \intel\sse and \intel\avx).
-
-	Each coprocessor core supports up to 4 hardware threads and can execute 2 instructions per clock cycle, one on the U-pipe and one on the V-pipe. Each hardware thread has a ``ready-to-run'' buffer comprising two instruction bundles, each bundle representing two instructions that can be executed simultaneously.
-
-	The \vpu contains 32 vector registers, each 512-bit wide. It includes the \emu and is able to execute up to 16 integer or single-precision floating-point operations per cycle (half for double-precision). Additionally, each operation can be a floating-point multiply-add, thus doubling the number of operations in each cycle. Fully utilizing the \vpu is critical for achieving high performance with the coprocessor.
-
-	\section{Execution modes}
-	\intel\mic devices have a Micro Operating System, a Linux\textsuperscript{*}-based operating system, contrary to what happens with most accelerator devices. This enables the coprocessors to work as a separate remote network node, independent of the host system.
-
-	These devices are able to operate in three different modes:
-		\begin{description}
-			\item [Native] The application is run solely on the coprocessor, as if it were a remote network node;
-			\item [Offload] The host system offloads work to the coprocessor, as is usually done when using hardware accelerators;
-			\item [Message Passing] Using \mpi, the coprocessor is treated as another peer in the network.
-		\end{description}
-
-	The native mode is only one that allows all the cores to be used, since it is not necessary for the OS to be managing the system, something that requires one of the cores to be exclusive in other modes. Running an application natively in the coprocessor requires that it is specifically built for its architecture, which in the \icc is done by providing the \texttt{-mmic} flag to both in the compiling and linking stages.
-
-	Native applications also require libraries specifically built for the \intel\mic architecture. While the \intel libraries are made available by default in the \intel Composer XE Suites, third-party libraries like Boost have to be specially built for this architecture. These libraries are then required in the linking phase of the building process and while running the application. This implies that these libraries must be copied to the device together with the application. 
-
-	\tdi{Message passing mode}
-
-	Offload mode treats the device as a typical hardware accelerator, similar to what happens with a \gpu, using compiler directives (\texttt{pragma offload} in C/C++) to control the application behaviour. Code for both the host and the coprocessor are compiled in the host environment. During the execution of the first offloaded code, the runtime loads the executable and the libraries linked with the code onto the coprocessor, and these remain on the device memory until the host program terminates (thus maintaining state across offload instances).
-
-	The offload code regions may not run on the coprocessor, depending on whether any device is present and it has any resources available. In these cases the offload code regions are executed on the host.
-
-	As happens with other hardware accelerators, offloading work to the device requires moving data between the host and the coprocessor. Using the offload directive this is done explicitly as directive clauses. An \texttt{in} clause defines the data that must be transferred from the host to the device before executing the offload region. \texttt{out} transfers the data from the device to the host at end of the offloaded code. Additionally, \texttt{inout} merges the functionality of both clauses, avoiding clause duplication. Using this memory copy model the data must be scalar or bitwise copyable structs/classes, i.e., arrays or structs/classes containing pointers are not supported. Exceptionally, variables used within the offload construct but declared outside its scope are synchronized automatically before and after execution in the coprocessor.
-
-	Alternatively, data can be transferred to the device implicitly using two new \intel\cilk Plus keywords: \texttt{\_Cilk\_shared} and \texttt{\_Cilk\_offload}. The former is used to declare a variable ``shared'' between the host and the coprocessor. This data is synchronized at the beginning and end of offload functions marked with the \texttt{\_Cilk\_offload} keyword. This implicit memory copy model surpasses the limitations of the explicit model in the offload directive, allowing for complex, pointer-based data structures.
+	\subfile{tex/510.mic.arch.tex}
+	\subfile{tex/520.mic.modes.tex}
 
 	\section{Programming model}
 	\section{MKL}
@@ -57,6 +24,17 @@
 	\section{Optimizations}
 	\label{sec:mic:optims}
 		The results presented in the previous section were surprising, given the successful results obtained with the multicore implementation in \cref{chp:multicore} and the resources available in the \intel\xeonphi Coprocessor. The discrepancy is so big that a decision was made at this point to improve the performance of this implementation before exploring any other execution modes or programming models.
+
+		\subsection{Massive Parallelism}
+		Many-core devices like the \intel\xeonphi coprocessor make hundreds of parallel computing resources available to applications. When the degree of parallelism in such applications is too low, some of these resources remain idle during execution, hampering efficiency. This is a corollary from Amdahl's Law \cite{Amdahl:1967}, which explains that the maximum theoretical speedup an application might achieve in a given architecture is limited by the amount of time a sequential processor would spend in the parallel part of the code in comparison to the sequential part.
+
+		The degree of parallelism explored so far in the matrix square root algorithm is quite limiting. For any matrix of dimension $n$, there will be at most $n$ elements to be computed in parallel, which happens only once. After the main diagonal, every other diagonal has one less element to compute, until the last diagonal where only one element exists to be computed. Consequently, the last diagonals are unable to take advantage of a high quantity of parallel resources.
+
+		Yet, this can be compensated when solving dependencies. Analysing \cref{eq:sqrtm:diagN} shows a sum of multiplications that translates into a dot product between the elements at the left and below the one being computed (excluding the main diagonal). A dot product is a highly parallel operation implemented in Level 1 \blas, and the number of dependencies increases as the algorithm progresses. For the last diagonal's only element, this operation can perform $n-2$ multiplications in parallel and sum all the products with a reduction.
+
+		For the point method, introducing parallelism when solving the dependencies requires a nested \texttt{parallel for} OpenMP directive with a reduction clause. As for the block method, this is extension is not trivial as most OpenMP libraries do not allow reductions to be performed using non-scalar types such as Armadillo matrices. This can be circumvented by separating the directives. Inside the parallel zone, each thread initializes a local matrix with the size of a full-block. A parallel loop iterates over the dependencies, each thread subtracting a block from the local copy. After the loop, an OpenMP \texttt{critical} directive allows each thread to add its local copy to the final result.
+
+		This optimization does not solve the application bottlenecks, but it allows for a better usage of resources in massively parallel devices such as the \intel\xeonphi and \gpus.
 
 		\subsection{Loop Unrolling}
 		Revisiting \cref{chp:case,alg:multicore:diagonal:point,alg:multicore:diagonal:block}, in particular the description of the algorithm dependencies, a deeper analysis allows to conclude that it is logical to unroll the diagonal loop. In both algorithms, the first and second diagonals act differently from the rest. The first diagonal has no dependencies and, as such, recursively applies the square root on the focused element/block (standard \texttt{sqrt} in the point method, which in turn is used by the block method).

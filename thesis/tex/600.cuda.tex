@@ -4,21 +4,95 @@
 	\chapter{CUDA}
 	\label{chp:cuda}
 
-	\section{Architecture}
+	\subfile{tex/610.cuda.model.tex}
+	\subfile{tex/620.cuda.arch.tex}
+
 	\section{Implementation}
-	Unlike \mic devices, \gpus differ greatly from \cpus. As such, this kind of devices have a distinct programming model which require a shift in the way the programmer thinks about the algorithm. Consequently, little of the code implemented in \cref{chp:multicore,chp:mic} is reusable in a CUDA implementation of the matrix square root algorithm.
+	\tdg{Can't use multicore or MIC code}%
+	Unlike \mic devices, \gpus differ greatly from \cpus. As such, the distinct programming model for this kind of devices requires a shift in the way the programmer thinks about the algorithm. Consequently, little of the code implemented in \cref{chp:multicore,chp:mic} is reusable in a CUDA implementation of the matrix square root algorithm.
 
-	First of all, the \nvidia compiler proved to be incompatible with the Armadillo library. While the usage of this library was reduced to loading the matrix file and outputting the result in \cref{sec:mic:optims}, any trace of Armadillo had to be completely removed from the CUDA implementation. The reason for this is an incompatibility of the \nvidia compiler with recent versions of the GNU compiler. Since older versions of the GNU compiler are required, some of the more recent features of the C++ language (used by Armadillo) are rejected. While the incompatibility was isolated and found not to be related to the input/output operations, the library is prepared to have all its headers used simultaneously, which resulted in very tight coupling.
+	\tdg{NVCC is incompatible with Armadillo}%
+	First of all, the \nvidia compiler is incompatible with recent versions of the GNU compiler, which prevents the usage of modern features in the C++ language used by the Armadillo library. Although the usage of this library was reduced to loading the matrix file and outputting the result in \cref{sec:mic:optims}, and the incompatibility was isolated and found not to be related with these input/output operations, the Armadillo library is prepared to have all its headers used simultaneously. This very tight coupling results in having to remove any trace of the library from the CUDA implementation.
 
+	\tdg{Removing Armadillo meant reimplementing I/O}%
 	Removing Armadillo implied that the code to load the matrix files had to be ported to a compatible implementation. To ease the task, \texttt{ARMA\_ASCII} format was selected as the reference format. This is the simplest text format in Armadillo, with the files having a small header (meant to identify the data type and the dimensions of the matrix) immediately followed by the matrix content.
 
-	Contrary to the implementations in the previous chapters, a CUDA implementation of this algorithm can not take advantage of an optimized BLAS library. The existing libraries assume that its kernels will have the entire device available. As seen in the previous implementations, this is not the case, since both methods contain independent parallel calls to BLAS functions. This implies having to reimplement each of these functions so that they can be used by all the threads in a single CUDA block.
+	\tdg{No optimized BLAS available for block scope}%
+	Contrary to the implementations in the previous chapters, a \cuda implementation of this algorithm can not take advantage of optimized \blas and \lapack libraries. The available packages assume that its kernels will have the entire device available, and most \lapack packages do not even implement \texttt{TRSYL}. Experience from \cref{chp:mic} show that this is not the case since both methods contain independent parallel calls to \blas and \lapack functions. This implies having to reimplement each of these functions so that they can be used by all the threads in a single \cuda block.
+
+	\tdg{Each diagonal function is a different kernel}%
+	Synchronization is also different for this implementation. In previous chapters, the parallel zones were confined to the computation of each diagonal, which were iterated over sequentially. This introduced the synchronization necessary to prevent that any diagonal were computed without its dependences being ready. In the context of a \cuda kernel, it is not possible to synchronize the entire device, consequence of blocks having to be independent. Consequently, the only way to implement this synchronization (for both methods) is to have each diagonal computed by a different kernel, at the expense of having to wait for the kernel to return from the device before launching a new one.
+
+	\tdg{Point method}%
+	Since only one diagonal of elements can be computed in parallel at any time, the point method is implemented using one-dimensional grid and blocks. This is the simplest method since linearising the indices, from both the threads and the blocks, each element in the diagonal can be computed by one thread. There is a trade-off: using one thread per element allows to take advantage of the larger parallelism amongst elements in the beginning, but suffers from lack of parallelism after some point since it does not solve the dependencies concurrently. On the other hand, using a whole block per element would hamper performance in the beginning but it would improve as the algorithm advances since it would be able to solve the dependencies in parallel.
+
+	\tdg{Block method}%
+	With the block method this trade-off disappears and gives place to the lack of optimized \blas and \lapack libraries. It also introduces the possibility for using two dimensional blocks since each block works as a standalone matrix, yet the kernels are kept with one-dimensional blocks for compatibility with the point method. Blocks in the main diagonal are solved using a single-block implementation of the point method. For the remaining diagonals, the entire thread block computes the indices (effectively isolating the required blocks for the computation) and calls the implemented single-block \blas and \lapack functions.
 
 	\section{Single-block BLAS and LAPACK}
 		\subsubsection{GEMM}
+
+		\begin{equation}
+			C = \alpha A B + \beta C
+			\label{eq:gemm}
+		\end{equation}
+
+		The general matrix-matrix multiplication function was reimplemented based on the rowwise block-striped parallel algorithm \cite[277-281]{Quinn:PP:2003} using a function signature similar to the one used by \mkl. It solves \cref{eq:gemm} by iterating over the columns in $C$ and having each thread responsible for a row. For each column, every thread applies $\beta$ to the respective element in $C$. It then iterates over the rows in $B$ (or columns in $A$), computing the first parcel in the right side of the equation.
+
 		\subsubsection{GEMV}
+
+		\begin{equation}
+			y = \alpha A x + y
+			\label{eq:gemv}
+		\end{equation}
+
+		This function implements the general matrix-vector multiplication. It is a simplified version of \texttt{GEMM}, iterating over the columns in $A$ and having a thread assigned to each row. Each thread then computes the respective element in $y$.
+
 		\subsubsection{TRPAISV}
+
+		\begin{equation}
+			(A + aI)x = b
+			\label{eq:trpaisv}
+		\end{equation}
+
+		\texttt{TRPAISV} does not exist implemented in any \blas library. It is based on the triangular solve function (\texttt{TRSV}) function, which solves the equation $Ax = b$, with the small change of adding $\alpha$ to the elements in the main diagonal of $A$ when these are used.
+
+		\Cref{eq:trpaisv} is solved by implementing the row-oriented parallel back substitution algorithm as described in \cite[293-295]{Quinn:PP:2003}. The algorithm iterates backwards over the columns of $A$, with each row assigned to one thread. For each column $c$, it starts by having a single thread compute the final value of the $c-th$ element in $x$ (adding $\alpha$), after which each thread updates its respective element in $x$.
+
+		To minimize memory allocations and copy operations, $b$ is overwritten with $x$.
+
 		\subsubsection{TRSYL}
+		\begin{equation}
+			AX + XB = C
+			\label{eq:trsyl}
+		\end{equation}
+
+		Lastly, this function solves the Sylvester equation (\cref{eq:trsyl}) using the Bartels-Stewart algorithm \cite[367-368]{Golub:Loan:MC:1996}. \Cref{alg:bartel_stewart} presents this algorithm. It iterates over the columns in $C$, with the first column calling only \texttt{TRPAISV}. The remaining ones need a call to \texttt{GEMV} before so \texttt{TRPAISV} is able to compute the final column.
+
+		Similar to what happens in \texttt{TRPAISV}, $C$ is overwritten with $X$ to minimize memory allocations.
+
+		\begin{algorithm}[htp]
+			\caption{Bartels-Stewart}
+			\label{alg:bartel_stewart}
+			\DontPrintSemicolon
+
+			\SetKwFunction{range}{range}
+			\SetKwFunction{solve}{solve}
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+
+			\Input{$A$: upper triangular matrix $m \times m$}
+			\Input{$B$: upper triangular matrix $n \times n$}
+			\Input{$C$: square matrix $m \times n$}
+			\Output{$X$: square matrix $m \times n$}
+
+			\For{$k \leftarrow 0$ \KwTo $n-1$}{
+				$i \leftarrow$\range{$0$,$m-1$}\;
+				$j \leftarrow$\range{$0$,$k-1$}\;
+				$X_{ik} \leftarrow C_{ik} + C_{ij} \times B_{jk}$\;
+				\solve{$(A-B_{kk})X_{ik} = X_{ik}$}
+			}
+		\end{algorithm}
 
 	\section{Environmental Setup}
 	\section{Results}

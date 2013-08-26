@@ -24,7 +24,7 @@
 		As the evolution of microprocessors move towards higher levels of parallelism, several other options exist, from using multiple machines in a cluster, allowing each to perform part of the computation independently, to specific-purpose devices such as \dsps and \gpus.
 
 		\tdg{definition of hetplats}%
-		A given system is said to be heterogeneous when it contains multiple devices of different kinds. Usually, each of these devices is capable of computing several operations in parallel. The most efficient computing systems of the world in the TOP500 list\footnote{\url{http://www.top500.org}} are composed of several interconnected computing nodes, each with multiple multi-core \cpus and one or more specialized hardware accelerators. \gpus and \intel\xeon Phi devices are currently the most popular.
+		A given system is said to be heterogeneous when it contains multiple devices of different kinds. Usually, each of these devices is capable of computing several operations in parallel. The most efficient computing systems of the world in the TOP500 list\footnote{\url{http://www.top500.org}} are composed of several interconnected computing nodes, each with multiple multicore \cpus and one or more specialized hardware accelerators. \gpus and \intel\xeon Phi devices are currently the most popular.
 
 		\tdg{GPUs and MICs (summary)}%
 		Popularity of these new specialized devices in \hpc, some created and developed in completely separate environments, has been increasing in the last years, triggered by the trend to use the number of cores in computing hardware. \gpus evolution, for example, where throughput is more important than speed, led to massively parallel architectures, able to process hundreds of pixels at the same time. Devices based on the \intel\mic architecture, on the other hand, are placed between \gpus and \cpus, having the characteristics for massive parallelism while still being able to handle more complex operations (such as running an operating system). Both kinds of devices are explained in more depth in \cref{chp:cuda,chp:mic} where they are explored in the context of this document's case study.
@@ -52,12 +52,12 @@
 
 		\section{Development Tools}
 		\tdg{new programming paradigm}%
-		Most developers use conventional sequential programming models, as this is the most natural way to plan the resolution of a given problem, one step at a time. For single-core systems, this worked perfectly, with the only parallelism in applications being extracted by the compiler and the processor at the instruction level. The transition to the multi-core era brought together a new programming paradigm, which must be understood in order to fully take advantage of the most modern computing resources available.
+		Most developers use conventional sequential programming models, as this is the most natural way to plan the resolution of a given problem, one step at a time. For single-core systems, this worked perfectly, with the only parallelism in applications being extracted by the compiler and the processor at the instruction level. The transition to the multicore era brought together a new programming paradigm, which must be understood in order to fully take advantage of the most modern computing resources available.
 
 		\tdg{parallel programming requires new tools, methods and deeper arch knowledge}%
 		Making the transition to parallel programming is not trivial. The ability to concurrently run several execution threads exposes the programmer to new problems: data races, workload balancing, deadlocks, etc. Debugging parallel applications is also harder and it requires smarter approaches, better than simply tracing the code (anything with more than four threads will be very hard to keep track of). The problem becomes even more complex when trying to increase efficiency with \hetplats. Most of the times, a developer must be aware of the underlying architectural details in order to create an efficient implementation.
 
-		Several tools have been presented, specially in the latest years, as multi-core shared memory environments and \hetplats become increasingly more popular. Frameworks have been developed to abstract the programmer from architectural details and the complexities of adapting code to run in a new platform.
+		Several tools have been presented, specially in the latest years, as multicore shared memory environments and \hetplats become increasingly more popular. Frameworks have been developed to abstract the programmer from architectural details and the complexities of adapting code to run in a new platform.
 
 		\subsection{OpenMP and TBB}
 		\subsection{OpenMPC and OpenACC}
