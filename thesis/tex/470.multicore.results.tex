@@ -1,0 +1,63 @@
+%!TEX root = ../thesis.tex
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Results}
+	\label{sec:multicore:results}
+
+	\begin{figure}[hp]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{assets/images/multicore/point-row.png}
+		\end{center}
+		\caption{Execution times for point method and row strategy}
+		\label{fig:multicore:point:row:times}
+	\end{figure}
+
+	\begin{figure}[hp]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{assets/images/multicore/point-diagonal.png}
+		\end{center}
+		\caption{Execution times for point method and diagonal strategy}
+		\label{fig:multicore:point:diagonal:times}
+	\end{figure}
+
+	\begin{figure}[hp]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{assets/images/multicore/matrix-variations.png}
+		\end{center}
+		\caption{Execution time sensitivity for both point and block methods, using diagonal strategy}
+		\label{fig:multicore:sensitivity}
+	\end{figure}
+
+	\begin{figure}[hp]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{assets/images/multicore/block-diagonal.png}
+		\end{center}
+		\caption{Execution times for block method and diagonal strategy}
+		\label{fig:multicore:block:diagonal:times}
+	\end{figure}
+
+	\begin{figure}[hp]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{assets/images/multicore/diagonal-speedup.png}
+		\end{center}
+		\caption{Speedups achieved with blocking for diagonal strategy}
+		\label{fig:multicore:block:diagonal:speedup}
+	\end{figure}
+
+	\begin{figure}[hp]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{assets/images/multicore/diagonal-block-stpoint-speedup.png}
+		\end{center}
+		\caption{Accumulated speedup achieved with blocking for diagonal strategy}
+		\label{fig:multicore:block:diagonal:speedup:accumulated}
+	\end{figure}
+
+	\begin{figure}[hp]
+		\begin{center}
+			\includegraphics[width=0.9\textwidth]{assets/images/multicore/diagonal-block-stpoint-speedup-strange.png}
+		\end{center}
+		\caption{Accumulated speedups achieved with blocking for diagonal strategy (power of 2 sizes)}
+		\label{fig:multicore:block:diagonal:speedup:accumulated:strange}
+	\end{figure}
+\end{document}

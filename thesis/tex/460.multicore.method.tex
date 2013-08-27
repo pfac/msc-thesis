@@ -1,0 +1,11 @@
+%!TEX root = ../thesis.tex
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Methodology}
+	\label{sec:multicore:method}
+
+	Tests were performed using different matrix sizes, only the smaller ones fitting into the \cpu last level cache and ranging from $2000 \times 2000$ to $8192 \times 8192$. For the block size, the dimension of 64 was found to be the best through experimental tuning.
+
+	Time measurements were confined to the implementation of the algorithm, disregarding I/O operations and memory allocations outside the core function. The best $K$ values were obtained ($K = 3$), with a tolerance of $5\%$, a minimum of 10 runs and a maximum of 20.
+\end{document}
