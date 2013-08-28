@@ -4,8 +4,10 @@
 	\section{Execution modes}
 	\label{sec:mic:modes}
 
+	\tdg{micro-OS}
 	\intel\mic devices have a Micro Operating System, a Linux\textsuperscript{*}-based operating system, contrary to what happens with most accelerator devices. This enables the coprocessors to work as a separate remote network node, independent of the host system.
 
+	\tdg{modes}
 	These devices are able to operate in three different modes:
 		\begin{description}
 			\item [Native] The application is run solely on the coprocessor, as if it were a remote network node;
@@ -13,18 +15,36 @@
 			\item [Message Passing] Using \mpi, the coprocessor is treated as another peer in the network.
 		\end{description}
 
+	\tdg{native mode}
 	The native mode is only one that allows all the cores to be used, since it is not necessary for the OS to be managing the system, something that requires one of the cores to be exclusive in other modes. Running an application natively in the coprocessor requires that it is specifically built for its architecture, which in the \icc is done by providing the \texttt{-mmic} flag to both in the compiling and linking stages.
 
+	\tdg{libraries have to specially compiled for native mode}
 	Native applications also require libraries specifically built for the \intel\mic architecture. While the \intel libraries are made available by default in the \intel Composer XE Suites, third-party libraries like Boost have to be specially built for this architecture. These libraries are then required in the linking phase of the building process and while running the application. This implies that these libraries must be copied to the device together with the application. 
 
-	\tdi{Message passing mode}
-
+	\tdg{offload mode}
 	Offload mode treats the device as a typical hardware accelerator, similar to what happens with a \gpu, using compiler directives (\texttt{pragma offload} in C/C++) to control the application behaviour. Code for both the host and the coprocessor are compiled in the host environment. During the execution of the first offloaded code, the runtime loads the executable and the libraries linked with the code onto the coprocessor, and these remain on the device memory until the host program terminates (thus maintaining state across offload instances).
 
+	\tdg{offload: may not happen}
 	The offload code regions may not run on the coprocessor, depending on whether any device is present and it has any resources available. In these cases the offload code regions are executed on the host.
 
+	\tdg{offload: explicit copy model}
 	As happens with other hardware accelerators, offloading work to the device requires moving data between the host and the coprocessor. Using the offload directive this is done explicitly as directive clauses. An \texttt{in} clause defines the data that must be transferred from the host to the device before executing the offload region. \texttt{out} transfers the data from the device to the host at end of the offloaded code. Additionally, \texttt{inout} merges the functionality of both clauses, avoiding clause duplication. Using this memory copy model the data must be scalar or bitwise copyable structs/classes, i.e., arrays or structs/classes containing pointers are not supported. Exceptionally, variables used within the offload construct but declared outside its scope are synchronized automatically before and after execution in the coprocessor.
 
+	\tdg{offload: implicit copy model}
 	Alternatively, data can be transferred to the device implicitly using two new \intel\cilk Plus keywords: \texttt{\_Cilk\_shared} and \texttt{\_Cilk\_offload}. The former is used to declare a variable ``shared'' between the host and the coprocessor. This data is synchronized at the beginning and end of offload functions marked with the \texttt{\_Cilk\_offload} keyword. This implicit memory copy model surpasses the limitations of the explicit model in the offload directive, allowing for complex, pointer-based data structures.
 
+	\tdg{message passing mode}
+	Working in message passing mode is possible through three \mpi programming models. The most common model, symmetric, creates \mpi processes on both the host and the coprocessor, which are able to communicate over the \pcie bus. Coprocessor-only places all the \mpi ranks on the coprocessor, similar to what happens with the native execution mode (the only difference lies in using \mpi). Lastly, the host-only model confines all processes to the host, where the coprocessor can be used through offload pragmas. Symmetric and host-only models allow for hybrid OpenMP/MPI programming, offering more control over the parallelism.
+
+	\tdg{shared memory}
+	Shared memory parallel programming in the coprocessor is possible using \pthreads, OpenMP, \intel\tbb and \intel\cilk. By default, for intra-node communication \mpi also uses a shared memory network fabric.
+
+	\tdg{MKL optimized for MIC}
+	\intel\mkl offers special support for the \intel\xeonphi coprocessor since version 11.0, with some of its functions specially optimized for the wider 512-bit \simd instructions. Future releases will provide a wider range of functions.
+
+	\tdg{MKL usage models, native model}
+	The coprocessor makes available three distinct usage models for \mkl: automatic offload, compiler assisted offload and native. Automatic offload requires no change in the source code, with the exception of enabling \mkl in the coprocessor (may also be done in the environment). The runtime may automatically transfer data to the \xeonphi and perform computations there. By default, the library decides when to offload and also tries to determine the optimal work division between the host and the devices (\mkl supports multiple coprocessors), but this can be set manually in the source code or in the environment.
+
+	\tdg{Native and CAO}
+	Native and compiler assisted offload usage happen when \mkl is used in native execution and inside an offloaded code region, respecitvely. Compiler assisted offload has the advantage of allowing for data persistence on the coprocessor.
 \end{document}

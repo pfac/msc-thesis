@@ -5,25 +5,12 @@
 	\label{chp:mic}
 
 	\subfile{tex/510.mic.arch.tex}
-	\subfile{tex/520.mic.modes.tex}
-
-	\section{Programming model}
-	\section{MKL}
-	\tdi{MKL automatic offload and compiler assisted offload}
-
-	\section{Native execution}
-	The native execution mode provides several advantages over its alternatives. To start, it makes one extra core available. Given that the coprocessor's cores architecture is based on the x86 \isa, it also reduces the development time considerably, as a \cpu functional implementation requires only to be rebuilt targeting the \mic architecture in order for the device to be able to run it natively. It also skips the communication necessary in an offload-based implementation, which is a potential bottleneck for many applications.
-
-	For these reasons, this mode was selected as a first attempt to use the \intel\xeonphi Coprocessor.
-
-	As previously stated, no change was required to the code developed in the previous chapter, the only change being in the build process (the \texttt{-mmic} flag). Yet, the previous build system was not prepared for the \intel\xeonphi Coprocessor, since it implied cross-compilation, and had to be adapted.
-
-	\subsection{Results}
-		\tdi{Show the disgrace that were these results compared to the multicore implementation}
+	\subfile{tex/520.mic.programming.tex}
+	\subfile{tex/530.mic.native.tex}
 
 	\section{Optimizations}
 	\label{sec:mic:optims}
-		The results presented in the previous section were surprising, given the successful results obtained with the multicore implementation in \cref{chp:multicore} and the resources available in the \intel\xeonphi Coprocessor. The discrepancy is so big that a decision was made at this point to improve the performance of this implementation before exploring any other execution modes or programming models.
+		The results presented in \cref{subsec:mic:native:results} were surprising, given the successful results obtained with the multicore implementation in \cref{chp:multicore} and the resources available in the \intel\xeonphi Coprocessor. The discrepancy is so big that a decision was made at this point to improve the performance of this implementation before exploring any other execution modes or programming models.
 
 		\subsection{Massive Parallelism}
 		Many-core devices like the \intel\xeonphi coprocessor make hundreds of parallel computing resources available to applications. When the degree of parallelism in such applications is too low, some of these resources remain idle during execution, hampering efficiency. This is a corollary from Amdahl's Law \cite{Amdahl:1967}, which explains that the maximum theoretical speedup an application might achieve in a given architecture is limited by the amount of time a sequential processor would spend in the parallel part of the code in comparison to the sequential part.

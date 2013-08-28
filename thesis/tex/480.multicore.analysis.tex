@@ -9,8 +9,7 @@
 
 	Using the block method is also clearly more efficient than using the point method, although there is less speedup from blocking as the number of threads is increased. Still, the accumulated speedup shows a clear ``bathtub'' curve, with the peak performance being reached when using all the hardware supported threads in the \cpu.
 
-	\tdi{Link stack overflow and confirm jargon with CAQA}
-	The sensitivity of the point method is specially strange. There is a particular case, with the matrix dimension of $n = 2048$, where the execution time of the point method is the double of $n = 2047$ or $n = 2049$. Such strange behaviour does not happen with the block method, which implies that something happens at cache level with this particular size. In fact, research shows similar cases where the authors call this event a cache super-alignment. Basically, what happens is that this particular size causes the access stride to reach only a small group of cache lines. This rapidly saturates the cache ways available, causing capacity misses.
+	The sensitivity of the point method is specially strange. There is a particular case, with the matrix dimension of $n = 2048$, where the execution time of the point method is the double of $n = 2047$ or $n = 2049$. Such strange behaviour does not happen with the block method, which implies that something happens at cache level with this particular size. In fact, research shows similar cases where the authors call this effect ``cache resonance'' \cite{MathWorks:LAPACK,SO:cache_resonance}. Basically, what happens is that this particular size causes the access stride to reach only a small group of cache lines. This rapidly saturates the cache ways available, causing capacity misses.
 
 	The scalability of the algorithm shown in these results increase the expectations of using the massive parallelism made available by the hardware accelerators studied in this dissertation.
 

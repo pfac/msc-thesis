@@ -4,10 +4,8 @@
 	\chapter{Technological Background}
 	\label{chp:techbg}
 
-	\tdi{processor memory gap}
-
 	\tdg{parallelism in supercomputers}%
-	Parallelism is far from being a modern concept, much less in the field of \hpc. Back in the 1970s, the raw performance of vector computers marked the beginning of modern Supercomputers\cite{Strohmaier:2005:20years}. These systems, able to process multiple items of data at the same time, prevailed in supercomputer design until the beginning of the 1990s, by which time the \mpp architectures became the most popular. \mpp systems had two or more identical processors connected to separate memory and controlled by separate (but identical) operating systems. As for the middle and low-end systems consisted in \smp architectures, containing two or more identical processors connected to a single shared main memory and controlled by a single operating system. In the following years cluster systems became the dominating design. With cluster computing separate computers, each having a \smp architecture, are able to cooperate, appearing as a single system to the user. This trend has continued up to the present \cite{TheNextWave:1:2013:Supercomputers,TOP500:overtime}.
+	Parallelism is far from being a modern concept, much less in the field of \hpc. Back in the 1970s, the raw performance of vector computers marked the beginning of modern Supercomputers \cite{Strohmaier:2005:20years}. These systems, able to process multiple items of data at the same time, prevailed in supercomputer design until the beginning of the 1990s, by which time the \mpp architectures became the most popular. \mpp systems had two or more identical processors connected to separate memory and controlled by separate (but identical) operating systems. Middle and low-end systems consisted in \smp architectures, containing two or more identical processors connected to a single shared main memory and controlled by a single operating system. In the following years cluster systems became the dominating design. In cluster computing multiple separate computers, each having a \smp architecture, are able to cooperate appearing as a single system to the user. This trend has continued up to the present \cite{TheNextWave:1:2013:Supercomputers,TOP500:overtime}.
 
 	\tdg{classes for parallelism}%
 	\citewithauthor{Hennessy:Patterson:2012:CAQA} define two classes of parallelism:
@@ -33,11 +31,16 @@
 		\dsps are another class of accelerators recently made popular for \hpc due to new architectures able to perform floating-point computations. Their architecture is very similar to that of a conventional processor, both programming and memory-wise \cite{FLAWN61}. Alternatively, \fpgas mix a set of configurable logic blocks, digital signal processor blocks and traditional \cpu cores (optional), all using a configurable interconnect. The key characteristic of these devices is the ability to configure them for a specific type of computation making them extremely versatile \cite{Brodtkorb:2010}. These devices are described here for completeness, not being the scope of this document explore the case study using them.
 
 		\tdg{processor-memory gap in accelerators}%
-		Most hardware accelerators suffer from the same limitations as conventional processor architectures regarding memory latency, despite the many strategies each one implements to hide or overcome the problem. Since the connection between the \cpu and an accelerator is typically performed over a \pcie interface, using the same memory banks would be a major bottleneck. For this reason, most devices have their own built-in memory, which are managed in a space distinct of the \cpu.
+		Most hardware accelerators suffer from the same limitations as conventional processor architectures regarding memory latency (explained in \cref{sec:techbg:distmem}), despite the many strategies each one implements to hide or overcome the problem. Also, since the connection between the \cpu and an accelerator is typically performed over a \pcie interface, using the same memory banks would be a major bottleneck. For this reason, most devices have their own built-in memory hierarchy, which is managed in a space distinct of the \cpus.
 
 
 		\section{Distributed Memory}
+		\label{sec:techbg:distmem}
 		\tdi{get citation from COD}
+
+		\tdg{processor-memory gap}%
+		\cpus and memories evolution followed very distinct paths. While the former focused on speed, the latter focused on capacity. Throughout the decades, this created and aggravated a performance gap between the processor and the memory, with memory accesses taking much longer than instruction execution (around 100 times more). In \cpus, this limitation was overcome with the creation of a memory hierarchy, with the large main memory in the bottom, and multiple levels of cache memory, each smaller, faster and closer to the computing cores.
+
 		\tdg{uniform memory accesses}%
 		In a typical \smp system, all the processors share the same interface to connect to the main memory. These architectures are classified as \uma, given that all processors are seen as equal by the system and therefore all memory requests have the same latency. Such designs scale poorly with the number of processors, as one processor has to wait until all previous requests from other processors are fulfilled in order to access the main memory. Added to the gap between processor and memory speeds, this further aggravates the memory bottleneck.
 
@@ -47,8 +50,11 @@
 		\tdg{shared memory}%
 		In a single multiprocessor computational node, where multiple memories exist each directly connected to one \cpu, a single unified address space exists for all the main memory. This is called a shared memory system, where all the data lies in a single unified address space and every processor has access to all the memory implicitly. In other words, even if a given processor is not directly connected to the memory containing the required data, it can still address that data directly.
 
+		\tdg{shared memory NUMA}%
+		Implementing a shared-memory \numa architectures introduces the complexity of maintaining the cache of multiple processors coherent. This is required in order for the multiple processors to be able to use the same data. When one processor changes a shared data item, the coherency mechanism notifies the remaining processors that the copy in their private cache is outdated and the item must be reloaded from main memory. Maintaining coherency guarantees the correction of the program, but it hampers the scalability of \numa architectures.
+
 		\tdg{distributed memory}%
-		A distributed memory system arises in \hetplats, where each computational node has its own main memory address space. A single computational node may also implement a distributed memory architecture it it contains any hardware accelerator with its own built-in memory (with its own address space). These systems communicate through message passing, having to explicitly transfer all the required data between the multiple address spaces. Between distinct computational nodes, communication is usually done over a network connection using an \mpi library. In the case of accelerators, the solutions to implement communication depend on the tools used for development targeted for such devices. Communication becomes a possible bottleneck with distributed memory. As such, extra effort is required to the distribute the workload efficiently among the available resources in order to achieve the best computation to communication ratio.
+		A distributed memory system arises in \hetplats, where each computational node has its own main memory address space. A single computational node may also implement a distributed memory architecture if it contains any hardware accelerator with its own built-in memory (with its own address space). These systems communicate through message passing, having to explicitly transfer all the required data between the multiple address spaces. Between distinct computational nodes, communication is usually done over a network connection using an \mpi library. In the case of accelerators, the solutions to implement communication depend on the tools used for development targeted for such devices. Communication becomes a possible bottleneck with distributed memory. As such, extra effort is required to the distribute the workload efficiently among the available resources in order to achieve the best computation to communication ratio.
 
 		\section{Development Tools}
 		\tdg{new programming paradigm}%
@@ -57,9 +63,25 @@
 		\tdg{parallel programming requires new tools, methods and deeper arch knowledge}%
 		Making the transition to parallel programming is not trivial. The ability to concurrently run several execution threads exposes the programmer to new problems: data races, workload balancing, deadlocks, etc. Debugging parallel applications is also harder and it requires smarter approaches, better than simply tracing the code (anything with more than four threads will be very hard to keep track of). The problem becomes even more complex when trying to increase efficiency with \hetplats. Most of the times, a developer must be aware of the underlying architectural details in order to create an efficient implementation.
 
-		Several tools have been presented, specially in the latest years, as multicore shared memory environments and \hetplats become increasingly more popular. Frameworks have been developed to abstract the programmer from architectural details and the complexities of adapting code to run in a new platform.
+		\tdg{development tools}%
+		Several tools have been presented to aid developers in taking advantage of the resources available in multicore shared memory environments and \hetplats, specially in the latest years with the increasing popularity of such systems. Despite none being explored in the scope of this dissertation, many frameworks have also been developed to abstract the programmer from architectural details and the complexities of adapting code to run in a new platform (like a hardware accelerator).
 
-		\subsection{OpenMP and TBB}
+		\subsection{PThreads, OpenMP, TBB and Cilk}
+		\pthreads names the standardized C language threads programming interface for UNIX systems. This standard was introduced with the goal of making parallel programming in shared-memory systems portable when hardware vendors implemented their own proprietary versions of threads \cite{LLNL:Barney:pthreads}. This API provides the tools for managing threads, mutual exclusion, condition variables, read/write locks and per-thread context.
+
+		OpenMP\cite{OpenMP,OpenMP:spec3.1} was formulated under a need similar to the purpose of \pthreads: to abstract the different ways operating systems imposed for programming for threads. At the time (1997), UNIX used \pthreads, Sun used Solaris threads, Windows used its own API and Linux used Linux threads \cite{Intel:pthreads_or_openmp}.
+
+		OpenMP is a standard API, in C/C++ and Fortran, for parallel programming in a multi-platform shared memory application running on all architectures. The API itself is less verbose than \pthreads and is very simple and easy to use (most of the times through compiler directives). It abstracts an inexperience programmer from all the complexity of managing threads, but without lacking the required tools for advanced users to perform any kind of fine tuning. It is also portable and scalable. OpenMP only addresses homogeneous systems with conventional \cpus and schedules automatically efficient workload distributions amongst all the available resources.
+
+		\intel\tbb is a C++ template library created by \intel with a similar purpose to OpenMP. While it is a lot more verbose, and lacks support for other languages, \tbb provides algorithms, highly concurrent containers, locks and atomic operations, a task scheduler and a scalable memory allocator \cite{TBB}. It is harder to program than OpenMP, but \intel claims it achieves equivalent or better performance.
+
 		\subsection{OpenMPC and OpenACC}
-		\subsection{GAMA}
+
+		OpenMPC\cite{OpenMPC} consists in an extension of the OpenMP specification to provide translation from regular OpenMP compiler directives to \cuda code.
+
+		Parallel zone directives delimit the blocks of code candidate for \cuda kernels. Only loop and section directives are considered true parallel sections, which are translated to perform workload distribution amongst the available threads. Synchronization directives cause the kernels to be split, as this is the only way to force global synchronization amongst all threads. Directives specifying data properties are interpreted to find the best \gpu memory space for the required data.
+
+		OpenACC\cite{OpenACC:2.0} is a standard API, in the same languages as OpenMP, meant to bring the advantages of OpenMP to programming with hardware accelerators. While originally designed only for \gpus, support has been extended for the \intel\xeonphi coprocessor. It abstracts the programmer from the memory management, kernel creation and the accelerator management. It also allows to execute both on the device and the \gpu host at the same time.
+
+		Comparing, OpenMPC only provides support only for \cuda-enabled devices, while OpenACC supports \nvidia and \amd\gpus alike and \intel\mic devices.
 \end{document}
