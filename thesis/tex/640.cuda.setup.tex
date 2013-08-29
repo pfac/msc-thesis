@@ -1,0 +1,10 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Setup and Methodology}
+	\label{sec:cuda:setup}
+
+	For the performance tests presented in this chapter, a \nvidia Tesla K20m board, with one GK110 Kepler \gpu \cite{NVIDIA:KEPLER} and 5GB of GDDR5 global memory. The \gpu contains 13 multiprocessors and 2496 \cuda cores (192 cores per \smx). This device provides a peak performance of 1.17 teraflops using double precision and has a peak memory bandwidth of 208 GB/s \cite{NVIDIA:TeslaKSeriesOverview}. Its \cuda capability is 3.5, enabling for the most modern \nvidia\gpu features.
+
+	The methodology used is similar to the described in \cref{sec:multicore:env,subsec:mic:native:setup} with the exception of the variation in the number of threads used.
+\end{document}
