@@ -1,0 +1,12 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\subsection{Environmental Setup and Methodology}
+	\label{subsec:mic:native:results}
+
+	Tests described in this section were obtained using an \intel\xeonphi Coprocessor 5110P, containing 60 cores running at 1.053 GHz and 8GB of GDDR5 memory with a maximum bandwidth of 320 GB/s. Since this section focuses solely on the native mode execution, the rest of the computational node is irrelevant.
+
+	Executables were compiled using \intel C++ Compiler, version 13, and linked with \mkl, version 11, and Armadillo, version 3.900.1.
+
+	The measurements performed followed the methodology described in \cref{sec:multicore:method}, testing the scalability of the implementation with different numbers of threads, from 1 to 540 (more than twice the number supported by the hardware). Given the sensitivity of matrices with a power of two dimension, only the dimensions 2000, 4000 and 8000 were tested.
+\end{document}

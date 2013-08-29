@@ -245,11 +245,12 @@ urldate = "2013-03-04"
   organization={NVIDIA},
   year={2009}
 }
-@techreport{NVIDIA:KEPLER,
-  title={NVIDIA's Next Generation CUDA Compute Architectur: Kepler GK110},
-  author={NVIDIA},
-  organization={NVIDIA},
-  year={2012}
+@techreport{
+	NVIDIA:KEPLER,
+	title={NVIDIA's Next Generation CUDA Compute Architectur: Kepler GK110},
+	author={NVIDIA},
+	organization={NVIDIA},
+	year={2012}
 }
 @article{
 	Hill:Marty:2008,
@@ -331,12 +332,26 @@ urldate = "2013-03-04"
 	version = "1.0"
 }
 @manual{
-	OpenMP,
+	OpenACC:2.0,
+	author = "Michael Wolfe",
+	title = "The OpenACC Application Programming Interface",
+	date = "2013-06",
+	url = "http://www.openacc.org/sites/default/files/OpenACC%202%200.pdf",
+	version = "2.0"
+}
+@manual{
+	OpenMP:spec3.1,
 	author = "OpenMP Architecture Review Board",
 	title = "OpenMP Application Program Interface",
 	url = "http://www.openmp.org/mp-documents/OpenMP3.1.pdf",
 	version = "3.1",
 	date = "2011-07"
+}
+@online{
+	OpenMP,
+	title = "About the OpenMP ARB and OpenMP.org",
+	editor = "OpenMP Architecture Review Board",
+	url = "http://openmp.org/wp/about-openmp/"
 }
 @techreport{
 	Deadman:Higham:Ralha:2012,
@@ -594,4 +609,35 @@ urldate = "2013-03-04"
 	editor = "MathWorks",
 	title  = "MATLAB Incorporates LAPACK",
 	url    = "http://www.mathworks.com/company/newsletters/articles/matlab-incorporates-lapack.html"
+}
+@book{
+	CbE:2011,
+	author = "Jason Sanders and Edward Kandrot",
+	title  = "CUDA by Example",
+	subtitle = "An Introduction to General-Purpose GPU Programming",
+	editor = "NVIDIA Corporation",
+	year   = 2011,
+	isbn = "978-0-13-138768-3, 0-13-138768-5"
+}
+@online{
+	LLNL:Barney:pthreads,
+	author = "Blaise Barney",
+	editor = "Lawrence Livermore National Laboratory",
+	title = "POSIX Threads Programming",
+	url = "https://computing.llnl.gov/tutorials/pthreads/"
+}
+@online{
+	Intel:pthreads_or_openmp,
+	author = "Andrew Binstock",
+	editor = "Intel Corporation",
+	title = "Threading Models for High-Performance Computing: Pthreads or OpenMP?",
+	url = "http://software.intel.com/en-us/articles/threading-models-for-high-performance-computing-pthreads-or-openmp"
+}
+@misc{
+	Intel:MIC:Overview,
+	author = "James Reinders",
+	editor = "Intel Corporation",
+	title = "An Overview of Programming for Intel Xeon processors and Intel Xeon Phi coprocessors",
+	date = "2012",
+	url = "http://software.intel.com/sites/default/files/article/330164/an-overview-of-programming-for-intel-xeon-processors-and-intel-xeon-phi-coprocessors.pdf"
 }

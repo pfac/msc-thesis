@@ -8,7 +8,7 @@
 
 	\tdi{CUDA C example}
 
-	Threads are grouped in blocks, which in turn compose the grid executing the kernel. The maximum number of threads per block is quite limiting (1024 in recent generations \cite{CUDA:GK110}), but a kernel can be executed by multiple equally-shaped thread blocks. These blocks are distributed to the available \sms in undefined order, in parallel or in series, and, consequently, must be independent. On the other hand, threads belonging to the same block are able to cooperate by sharing data and by synchronizing their execution.
+	Threads are grouped in blocks, which in turn compose the grid executing the kernel. The maximum number of threads per block is quite limiting (1024 in recent generations \cite{NVIDIA:KEPLER}), but a kernel can be executed by multiple equally-shaped thread blocks. These blocks are distributed to the available \sms in undefined order, in parallel or in series, and, consequently, must be independent. On the other hand, threads belonging to the same block are able to cooperate by sharing data and by synchronizing their execution.
 
 	There are three levels of memory available to the programmer. First and fastest, every thread has its private local memory. Each block then has shared memory visible to all its threads. Lastly, all the threads have access to the same device global memory, which is persistent across multiple kernel executions.
 \end{document}
