@@ -4,9 +4,6 @@
 
 \addbibresource{../shared/bib/all.bib}
 
-\setlength\columnsep{.5cm}
-\setlength\parindent{1.5em}
-
 % set footnote font size to 8pt (scriptsize for class 12pt)
 \let\oldfootnotesize\footnotesize
 \renewcommand*{\footnotesize}{\oldfootnotesize\scriptsize}
@@ -49,8 +46,10 @@
 	\subfile{tex/900.conclusions.tex}
 	\subfile{tex/909.futurework.tex}
 	
+	\appendix
+	\subfile{tex/911.appendix.setup.tex}
+
 	\backmatter
 	\printbibliography
-	% \appendix
 
 \end{document}
