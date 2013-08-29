@@ -1,0 +1,33 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Further Optimizations}
+	\label{sec:cuda:further}
+
+	While further optimizations were not implemented using \cuda, it is still relevant to study how this implementation could be improved.
+
+	\nvidia's command-line profiler \texttt{nvprof} allows to profile the application in the same environment as it was tested, exporting the results for visualization using the Visual Profiler. In its turn, this tool allows to perform a Guided \gpu utilization analysis, which reveals a lack of overlapping in operations.
+
+	\subsection{Page-Locked Host Memory}
+	Page-locked memory, also known as pinned memory, has the important property of never being paged out to the disk. This means that the operating system can safely allow for an application to access the physical address of the memory required.
+
+	Knowing the physical address of a buffer in the host memory allows for a \gpu to use \dma to copy data to or from the host. \dma allows these transfers to be performed without intervention from the \cpu, which in turn leaves it free to be paging out these buffers or relocating their physical address. When a memory copy is performed using pageable memory, the \cuda driver first copies the data to a page-locked ``staging'' buffer, and then it performs the copy from that buffer to the \gpu using \dma \cite{CbE:2011}.
+
+	Yet, it has the consequence of disabling virtual memory for those pages in the host memory. This would cause the host to run out of available memory much faster, not only failing in machines with smaller amounts of memory but also affecting the performance of other applications in the same system. Fortunately, none of these issues would be problematic in the system used for performance tests due to the very large amount of memory and the care for not having any other application running on the system at the same time to minimize interferences with time measurements.
+
+	In order to use page-locked memory, the \cuda runtime offers the function \texttt{cudaHostAlloc}, which is meant to replace the standard C library routine \texttt{malloc}. It also offers the respective replacement for \texttt{free} as \texttt{cudaFreeHost}.
+
+	Although changing an application to use page-locked host memory should only require replacing the routines for memory allocation, using C++ objects it becomes more complicated. In particular, two different objects are used in the initialization of the implemented program. First, a matrix object loads the content of the specified file, being responsible for reimplementing I/O operations compatible with Armadillo. Second, a \cuda array object is in charge of performing the required memory allocations in the device, copy operations between it and the host and cleaning up the allocated resources on destruction, abstracting the original \cuda API with a friendlier C++ version.
+
+	Changing the \cuda implementation described in this chapter to use page-locked host memory would require merging these two objects. Upon loading the matrix from file, the memory on the host would have to be allocated using the routine for page-locked memory. At this time, it would have to allocate the memory in the device. This object would also have to be responsible for freeing all the allocated memory, both for the host and the device, on destruction. Memory transfers between the device and the host would have to be performed upon request.
+
+	\subsection{Streams}
+	\label{subsec:cuda:further:streams}
+
+	\cuda streams represent queues of \gpu operations, such as kernel launches and memory copies, that get executed in the same order they are added. Streams work with asynchronous operations, which in case of memory transfers requires the host memory to be page-locked. This allows for the operations to be executed by the device without interference from the \cpu, thus reducing the time between successive kernel launches. They also behave like tasks on a \cpu, allowing for parallelism by overlapping operations in different streams, restricted by the resources available in the device. For example, it is possible to overlap two memory copies between the host and the device, one in each direction, while also computing a kernel.
+
+	Extending the existing implementation to use streams would first require for the page-locked optimization to be implemented. After this, copying the next diagonal to be computed to the device could be overlaped with copying the last computed diagonal back to the host. At the same time, the device would be computing the current diagonal.
+
+	This optimization would maximize the overlap of operations in the device, thus increasing its efficiency.
+\end{document}
+
