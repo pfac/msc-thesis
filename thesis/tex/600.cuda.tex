@@ -4,6 +4,10 @@
 	\chapter{CUDA}
 	\label{chp:cuda}
 
+	Nowadays, \gpus are the most popular hardware accelerator being used in \hpc. These devices evolved in the field of image processing, where each pixel is usually independent of those around. For these reasons, \gpus were designed from scratch to be able to perform the same simple operation using huge amounts of data.
+
+	For over a decade, computer scientists and domain scientists have been using these devices to execute code produced for other purposes besides image rendering -- the advent of \gpgpus \cite{NVIDIA:GPGPU}. Programming these accelerators is not a trivial task since it requires knowledge of the underlying architecture in order to be able to take full advantage of the device capabilities. The \gpu implementations described throughout this document will be targeted for \nvidia devices using the \nvidia's \cuda framework, since it is the dominant proprietary framework for \gpgpu programming. For this reason, the architectural characteristics of \gpgpus will be described using \cuda terminology.
+
 	\subfile{tex/610.cuda.model.tex}
 	\subfile{tex/620.cuda.arch.tex}
 	\subfile{tex/630.cuda.implementation.tex}

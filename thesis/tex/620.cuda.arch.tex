@@ -24,4 +24,6 @@
 	When accessing memory in a \cuda kernel, coalesced memory accesses are required in order to achieve an efficient memory usage. Coalesced accesses happen when the threads in a warp access global memory at the same time asking for contiguous addresses. Since the load units are able to retrieve data from memory in blocks, this results in more data being fetched with less accesses. Coalesced accesses also help the memory controller to find the best grouping of threads to merge the requests into fewer memory accesses.
 
 	\gpus implementing the G80 architecture, the first \cuda-enabled devices, had a memory bandwidth of 86.4 GB/s. On the other hand, modern \gpus using \pcie Generation 3 interface can transfer data between global memory and the system main memory at 8 GB/s in each direction (at the same time) \cite{PMPP:2012}. Since communication with the \cpu is so expensive it must be kept to a minimum in order to maximize performance.
+
+	\subfile{tex/621.cuda.arch.kepler.tex}
 \end{document}
