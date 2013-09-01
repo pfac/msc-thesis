@@ -1,0 +1,9 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\subsection{Single matrix}
+	\label{subsec:mic:optims:self}
+	All the implementations so far assume at least two distinct matrices are used in the algorithm, one for $T$ and another one for $U$. Aside from dependencies, this implies that when a block $U_{ij}$ is being computed, another block $T_{ij}$ must also be present. The memory footprint becomes even larger with the optimization described in \cref{subsec:mic:optims:blockified}. ``Blockifying'' the input matrix generates a second, re-organized matrix, which is then used as the input matrix for the algorithm. The algorithm then generates a third matrix, also ``blockified'', with the result, which then has to be re-organized into a fourth standard matrix with the final result.
+
+	\blas and \lapack calls minimize the memory footprint by overwriting one of the operands with the result of the operation. In the case of the matrix square root algorithm this is also possible since only one element/block in the input matrix $T$ is used in the computation of each element/block in $U$. Consequently, the memory footprint can be easily reduced by overwriting $T$ with $U$.
+\end{document}

@@ -5,7 +5,7 @@
 	\label{sec:mic:programming}
 
 	\tdg{micro-OS}
-	\intel\mic devices have a Micro Operating System, a Linux\textsuperscript{*}-based operating system, contrary to what happens with most accelerator devices. This enables the coprocessors to work as a separate remote network node, independent of the host system.
+	\intel\mic devices \cite{Intel:MIC:QuickStartGuide} have a Micro Operating System, a Linux\textsuperscript{*}-based operating system, contrary to what happens with most accelerator devices. This enables the coprocessors to work as a separate remote network node, independent of the host system.
 
 	\tdg{modes}
 	These devices are able to operate in three different modes:
@@ -46,5 +46,5 @@
 	The coprocessor makes available three distinct usage models for \mkl: automatic offload, compiler assisted offload and native. Automatic offload requires no change in the source code, with the exception of enabling \mkl in the coprocessor (may also be done in the environment). The runtime may automatically transfer data to the \xeonphi and perform computations there. By default, the library decides when to offload and also tries to determine the optimal work division between the host and the devices (\mkl supports multiple coprocessors), but this can be set manually in the source code or in the environment.
 
 	\tdg{Native and CAO}
-	Native and compiler assisted offload usage happen when \mkl is used in native execution and inside an offloaded code region, respecitvely. Compiler assisted offload has the advantage of allowing for data persistence on the coprocessor.
+	Native and compiler assisted offload usage happen when \mkl is used in native execution and inside an offloaded code region, respectively. Compiler assisted offload has the advantage of allowing for data persistence on the coprocessor.
 \end{document}

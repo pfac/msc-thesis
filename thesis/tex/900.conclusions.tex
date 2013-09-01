@@ -3,5 +3,6 @@
 \begin{document}
 	\chapter{Conclusions}
 	\label{chp:conclusions}
-	\tdi{Using OpenMP critical is a bad idea}
+
+	Massive parallelism was found in the algorithm by solving elements/blocks dependencies in parallel, which is theoretically able to compensate for the decreasing parallelism as the number of elements/blocks decreases with the progress of the algorithm. Yet, the obtained results did not show any improvements from parallelizing the dependency solving step. This was found to be related with the fact that OpenMP does not enable nested parallelism by default, but further testing could not be performed due to time constraints.
 \end{document}

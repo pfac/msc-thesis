@@ -17,7 +17,7 @@
 
 	Yet, this can be compensated when solving dependencies. Analysing \cref{eq:sqrtm:diagN} shows a sum of multiplications that translates into a dot product between the elements at the left and below the one being computed (excluding the main diagonal). A dot product is a highly parallel operation implemented in Level 1 \blas, and the number of dependencies increases as the algorithm progresses. For the last diagonal's only element, this operation can perform $n-2$ multiplications in parallel and sum all the products with a reduction.
 
-	For the point method, introducing parallelism when solving the dependencies requires a nested \texttt{parallel for} OpenMP directive with a reduction clause. As for the block method, this is extension is not trivial as most OpenMP libraries do not allow reductions to be performed using non-scalar types such as Armadillo matrices. This can be circumvented by separating the directives. Inside the parallel zone, each thread initializes a local matrix with the size of a full-block. A parallel loop iterates over the dependencies, each thread subtracting a block from the local copy. After the loop, an OpenMP \texttt{critical} directive allows each thread to add its local copy to the final result.
+	For the point method, introducing parallelism when solving the dependencies requires a nested \texttt{parallel for} OpenMP directive with a reduction clause. As for the block method, this is extension is not trivial as most OpenMP libraries do not allow reductions to be performed using non-scalar types such as Armadillo matrices. This can be circumvented by separating the directives. Inside the parallel zone, each thread initializes a local matrix with the size of a full-block. A parallel loop iterates over the dependencies, each thread subtracting a block from the local copy. After the loop, an OpenMP lock allows each thread to add its local copy to the final result without creating a race condition.
 
 	This optimization does not solve the application bottlenecks, but it allows for a better usage of resources in massively parallel devices such as the \intel\xeonphi and \gpus.
 
@@ -264,42 +264,6 @@
 
 	Note that while Armadillo is removed from the computation, it is still used for I/O operations for loading the matrix from a file and outputting the result.
 
-	\subsection{Blocks as matrices}
-	\label{subsec:blockify}
-	After removing Armadillo, it becomes clear how \blas and \lapack calls access sub-matrices using the leading dimensions of the whole matrix. This simple approach is, however, error prone and better locality could be achieved were it not required to jump $n$ elements from one block column to the next.
-
-	The matrices can be reorganized so each independent block is contiguous in memory, effectively making it an independent matrix. See \cref{eq:blockify} for example. $A$ is a regular column-major matrix, with the elements in the same column contiguous in memory, and each column also contiguous in memory. When trying to access the sub-matrix $A$ corresponding to the first two rows and columns, three elements of the first column must be skipped. In matrices where the dimension is large enough this translates into one memory access per block column. ``Blockifying'' $A$ generates $B$ where this does not happen because each block is now a column-major matrix, with all the blocks in the same column contiguous in memory, and the same being true for all the columns of blocks.
-
-	\begin{equation}
-		\begin{array}{ccc}
-			\left[
-			\begin{array}{c|c|c|c|c}
-				 1 &  2 &  4 &  7 & 11  \\
-				 0 &  3 &  5 &  8 & 12  \\
-				 0 &  0 &  6 &  9 & 13  \\
-				 0 &  0 &  0 & 10 & 14  \\
-				 0 &  0 &  0 &  0 & 15  \\
-			\end{array}
-			\right] & \Rightarrow & \left[
-			\begin{array}{cc|cc|c}
-				 1 &  2 &  4 &  7 & 11  \\
-				 0 &  3 &  5 &  8 & 12  \\
-				 \hline
-				 0 &  0 &  6 &  9 & 13  \\
-				 0 &  0 &  0 & 10 & 14  \\
-				 \hline
-				 0 &  0 &  0 &  0 & 15  \\
-			\end{array}
-			\right] \\
-			A & & B
-		\end{array}
-		\label{eq:blockify}
-	\end{equation}
-
-	This blockify operation does add some overhead to the initialization and to the cleanup (to revert the result to standard format), but it improves cache usage by through spatial locality. This overhead may or may not be worth depending on how good is this improvement and how it affects the computation.
-
-	\subsection{Single matrix}
-	All the implementations so far assume at least two distinct matrices are used in the algorithm, one for $T$ and another one for $U$. Aside from dependencies, this implies that when a block $U_{ij}$ is being computed, another block $T_{ij}$ must also be present. The memory footprint becomes even larger with the optimization described in \cref{subsec:blockify}. ``Blockifying'' the input matrix generates a second, re-organized matrix, which is then used as the input matrix for the algorithm. The algorithm then generates a third matrix, also ``blockified'', with the result, which then has to be re-organized into a fourth standard matrix with the final result.
-
-	\blas and \lapack calls minimize the memory footprint by overwriting one of the operands with the result of the operation. In the case of the matrix square root algorithm this is also possible since only one element/block in the input matrix $T$ is used in the computation of each element/block in $U$. Consequently, the memory footprint can be easily reduced by overwriting $T$ with $U$.
+	\subfile{tex/544.mic.optims.blockified}
+	\subfile{tex/545.mic.optims.self.tex}
 \end{document}
