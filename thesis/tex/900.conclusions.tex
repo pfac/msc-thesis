@@ -4,5 +4,38 @@
 	\chapter{Conclusions}
 	\label{chp:conclusions}
 
-	Massive parallelism was found in the algorithm by solving elements/blocks dependencies in parallel, which is theoretically able to compensate for the decreasing parallelism as the number of elements/blocks decreases with the progress of the algorithm. Yet, the obtained results did not show any improvements from parallelizing the dependency solving step. This was found to be related with the fact that OpenMP does not enable nested parallelism by default, but further testing could not be performed due to time constraints.
+	This dissertation was focused on the main goal of achieving an efficient implementation of the matrix square root algorithm using hardware accelerators in an heterogeneous platform. Three cases were studied with this goal in mind The first, a port of the algorithm already described in previous work running in a shared-memory multicore environment, increased the familiarity with the algorithm and served as the base for the other implementations. The second, targeted for devices of the \intel\mic architecture, allowed to put the new \intel devices to the test, as well as its programming model. And the third, an implementation targeted for \cuda enabled \nvidia\gpus, put the algorithm to the test using the most popular accelerator device nowadays.
+
+	The multicore implementation not only validated the results presented in \cite{Deadman:Higham:Ralha:2013}, it also allowed to conclude that the algorithm has a near perfect scalability with the explicit parallelism of the diagonal strategy, despite its lack of locality. Additionally, the block method was found to eliminate a cache resonance effect triggered specifically by power-of-two matrix dimensions.
+
+	Porting the multicore implementation to the \intel\xeonphi coprocessor was confirmed to be trivial, although such was found not be the case with achieving high performance using these devices. The similar programming models inspire to similar practices, but the truth is that it requires a distinct way of thinking, a lot more targeted for vectorization than what is required when programming for \cpus.
+
+	The particularities of \intel OpenMP also posed some confusion. A programmer used to following the standard specification for portability between different compiler vendors is bound to accidentally ignore \intel specific features. The lack of experience and wrong assumptions led to the nested parallelism and affinity mechanisms being under-explored.
+
+	The weak operating system in the coprocessor also forces an adaptation of the methodology since it does not support any major featured script language. This is overcome by running the programs through a remote session that breaks all the automatic mechanisms previously prepared to aid in running in collecting all the required data. Consequently, the time required for performing performance tests greatly increased, which further testing.
+
+	Initial results using the \intel\xeonphi shown that the multicore code, although functional, is less efficient in the coprocessor. Following the recommendations in \intel documentation stating that optimizations should be focused initially on the \cpu implementation, the code was profiled in the development environment using \intel\vtune Amplifier XE 2013 and performance was found to be hurt by the usage of the Armadillo library. Five optimizations were performed with the purpose of achieving higher performance in the \intel\xeonphi coprocessor:
+	\begin{inparaenum}[(a)]
+		\item massive parallelism;
+		\item loop unrolling;
+		\item replacement of Armadillo;
+		\item reorganization of the matrices by blocks;
+		\item and replacement of the output matrix with the input overwrite.
+	\end{inparaenum}
+
+	Massive parallelism was found in the algorithm by solving elements/blocks dependencies in parallel, which is theoretically able to compensate for the decreasing parallelism as the number of elements/blocks decreases with the progress of the algorithm. However, the obtained results did not show any improvements from parallelizing the dependency solving step. This was found to be related with the fact that OpenMP does not enable nested parallelism by default, but further testing could not be performed due to time constraints.
+
+	Obtained results also proved the absence of significant improvement with loop unrolling, proving that conditional branching is not as harmful in the coprocessor as it is in a \gpu.
+
+	The Armadillo library was found to be very useful during for the multicore implementation, significantly reducing the development time. However, despite being planned for \hpc it still lacks mechanisms to avoid extra memory allocations and copies in some situations. For this reason, its usage had to be limited to I/O operations.
+
+	The two last optimizations, both based on an implementation without Armadillo, shown significant improvements, specially together. The accumulated speedup of these optimizations reduced the execution time for the larger matrix dimensions to less than half. Nevertheless, since these optimizations also apply to the multicore environment, the performance achieved in the coprocessor did not reach the values of a \cpu implementation, despite reducing the gap significantly. Further optimizations were not pursued to allow for a \cuda implementation withing the time constraints.
+
+	Reimplementing the algorithm for \cuda-enabled devices proved to be the most tricky. Incompatibilities with the compiler and a tight coupling in the library prevented the already minimal presence of Armadillo, forcing to a reimplementation of the I/O operations. As for the development of the algorithm itself, the massive parallelism explicitly made available by the \cuda programming model significantly eased up the expression of the algorithm parallelism, despite the paradigm change. However, the absence of \blas and \lapack packages targeted to be used inside a single block of threads implied that these routines had to be manually implemented.
+
+	Results obtained with a (naive) \cuda implementation also did not surpass the performance of the \multicore environment. The absence of time to proceed optimizing this implementation left very promising paths unexplored.
+
+	Finally, even not having achieved higher performance using any of the hardware accelerators studied during this dissertation, the \cuda implementation may be used as a way for the processor to delegate part of its workload, allowing it to be used for other tasks. The same is true for the coprocessor implementation, although it would require changing the execution mode to offload, something that is not expected to be complex.
+
+
 \end{document}

@@ -6,7 +6,7 @@
 
 	The environmental setup and methodologies used throughout this dissertation are described in this appendix. This is meant to avoid unnecessary repetition between the chapters.
 
-	All the tests performed for this document were performed in the \search cluster\footnote{\url{http://search.di.uminho.pt}}. For \cref{chp:multicore}, a single computational node of group 701 was used. Each node in this group contains two 8-core \intel\xeon E5-2650 processors and 64GB shared DRAM (\numa) at 1333 MHz. Each of its processors runs at a clock frequency of 2.00 GHz and has hardware support for 32 simultaneous threads with \intel Hyper-Threading. Further information regarding the hardware in these nodes is shown in \cref{tab:search:701}.
+	All the tests performed for this document were performed in the \search cluster\footnote{\url{http://search.di.uminho.pt}}. For \cref{chp:multicore}, a single computational node of group 701 was used. Each node in this group contains two 8-core \intel\xeon E5-2650 processors and 64GB shared DRAM (\numa) at 1333 MHz. Each of its processors runs at a clock frequency of 2.00 GHz and has hardware support for 16 simultaneous threads with \intel Hyper-Threading. Further information regarding the hardware in these nodes is shown in \cref{tab:search:701}.
 
 	\begin{table}[p]
 		\begin{center}
@@ -28,7 +28,7 @@
 
 	Nodes in the 701 group run Linux CentOS 6.2. The executables were built using \intel Composer XE 2011, compiled with \icpc 12.0.2 and linked with \intel\mkl (for optimized \blas and \lapack) and the Armadillo C++ Linear Algebra library, version 3.800.2.
 
-	Tests in \cref{chp:mic,chp:cuda} are run a single node of group 711 containing both \gpus and an \intel\xeonphi. Nodes in this group contain two \intel\xeon E5-2670 \cpus. They also contain 64GB shared DRAM (\numa). Each processor runs at 2.60 GHz and support up to 16 simultaneous threads (Hyper-Threading). \Cref{tab:search:711} shows more hardware details.
+	Tests in \cref{chp:mic,chp:cuda} were run in a single node of group 711 containing both \gpus and an \intel\xeonphi coprocessor. Nodes in this group contain two \intel\xeon E5-2670 \cpus. They also contain 64GB shared DRAM (\numa). Each processor runs at 2.60 GHz and support up to 16 simultaneous threads (Hyper-Threading). \Cref{tab:search:711} shows more hardware details.
 
 	\begin{table}[p]
 		\begin{center}
@@ -96,10 +96,10 @@
 		\label{tab:k20m}
 	\end{table}
 
-	All the tests in this dissertation followed the same methodology: the best 3 measurements with a tolerance of 5\%, with a minimum of 10 runs and a maximum of 20. Time measurements were confined to the implementation of the algorithm, disregarding initialization and cleanup steps (such as I/O operations, allocating and freeing memory or interpreting program options).
+	All the tests in this dissertation followed the same methodology: the best 3 measurements with a tolerance of 5\%, with a minimum of 10 runs and a maximum of 20. Time measurements were confined to the implementation of the algorithm, disregarding initialization and cleanup steps (such as I/O operations, allocating and freeing memory or interpreting program options). Double precision was used at all times, to emulate the needs of applications with minimal tolerance to precision loss.
 
 	Matrices of three different dimensions were used in performance tests: 2000, 4000 and 8000. Only the smallest size fits in the aggregated last-level caches of the computational nodes used
 	. The remaining dimensions force the program to use \dram. \Cref{chp:multicore} also uses equivalent power of two dimensions, but due to the sensitivity demonstrated by the obtained results, these are not used in the other chapters.
 
-	For implementations of the block method, the best block dimension was determined experimentally. For both \cref{chp:multicore,chp:cuda}, this dimension was found to be 64, while for \cref{chp:mic} it is 32.
+	For implementations of the block method, the best block dimension was determined experimentally. For both \cref{chp:multicore,chp:cuda}, this dimension was found to be 64, while for \cref{chp:mic} it was 32.
 \end{document}
