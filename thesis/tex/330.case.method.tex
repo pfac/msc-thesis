@@ -1,0 +1,13 @@
+%!TEX root = ../thesis.tex
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Evaluation Methodology}
+	\label{sec:case:method}
+
+	All the tests in this dissertation followed the same methodology: the best 3 measurements with a tolerance of 5\%, with a minimum of 10 runs and a maximum of 20. Time measurements were confined to the implementation of the algorithm, disregarding initialization and cleanup steps (such as I/O operations, allocating and freeing memory or interpreting program options). Double precision was used at all times, to emulate the needs of applications with minimal tolerance to precision loss.
+
+	Matrices of three different dimensions were used in performance tests (2000, 4000 and 8000). The smallest is meant to fit in the last-level cache of modern \cpus, but being large enough to be relevant when using blocks. The remaining dimensions force the program to use \dram in all the systems used for performance tests.
+
+	The best block dimension in the block method implementations was determined experimentally for each case.
+\end{document}

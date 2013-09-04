@@ -5,6 +5,33 @@
 	\section{Results}
 	\label{sec:multicore:results}
 
+	\tdg{Rebuçados e methodology}
+	Performance measurements are required to verify and quantify the improvements from using the block method over the point one and to properly compare the algorithms for the two presented strategies. This section presents the results obtained for these algorithms with tests running in a single node of the 701 group in the \search\footnote{\url{http://search.di.uminho.pt}} cluster. In addition to what was described in \cref{sec:case:method}, the methodology for these tests also included power-of-two equivalent dimensions (2048, 4096 and 8192). A block dimension of 64 was experimentally found to be the most efficient.
+
+	\tdg{OS and hardware}
+	Nodes in this group run Linux CentOS 6.2 with two 8-core \intel\xeon E5-2650 processors and 64GB of shared DRAM (\numa). Each of its processors runs at a clock frequency of 2.00 GHz and has hardware support for 16 simultaneous threads with \intel Hyper-Threading. Further information regarding the hardware in these nodes is shown in \cref{tab:search:701}.
+
+	\tdg{compiler and libraries}
+	Tests were built using \intel Composer XE 2011 (compiled with \icpc 12.0.2 and linked with \intel\mkl, for optimized \blas and \lapack) and Armadillo C++ Linear Algebra library (version 3.800.2).
+
+	\begin{table}[p]
+		\begin{center}
+			\begin{tabular}{lr}
+				\hline
+				Clock frequency & 2.00 GHz \\
+				Cores & 8 \\
+				SIMD width & 256-bit (\avx) \\
+				Memory size & 64 GB \\
+				\hline
+				Peak DP FLOPs & 128 GigaFLOP/s \\
+				Peak Memory Bandwidth & 51.2 GB/s \\ 
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption{Hardware details for \search group 701 nodes. Further information available in \cite{Intel:Xeon:e5_2650,Intel:Xeon:e5_2600}.}
+		\label{tab:search:701}
+	\end{table}
+
 	\Cref{fig:multicore:point:row:times} shows the execution times obtained for the point method with the row strategy. Preliminary tests with the column strategy showed identical results. It is clear that these strategies does not scale at all, unlike what happens with the diagonal strategy (\cref{fig:multicore:point:diagonal:times}), which reaches its maximum performance when using all the hardware supported threads.
 
 	\begin{figure}[hp]

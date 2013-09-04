@@ -2,8 +2,8 @@
 
 \usepackage{kvoptions}
 \SetupKeyvalOptions{
-  family=thesis,
-  prefix=thesis@
+family=thesis,
+prefix=thesis@
 }
 \DeclareBoolOption[false]{final}
 \ProcessKeyvalOptions*
@@ -27,13 +27,17 @@
 \usepackage{xspace}
 
 \ifthesis@final
-  \RequirePackage[disable]{todonotes}
+	\RequirePackage[disable]{todonotes}
 \else
-  \RequirePackage{todonotes}
+	\RequirePackage{todonotes}
 \fi
 
 \usepackage{varioref}
-\usepackage[colorlinks=false]{hyperref}
+\ifthesis@final
+	\usepackage[colorlinks=false]{hyperref}
+\else
+	\usepackage[colorlinks=true]{hyperref}
+\fi
 \usepackage[noabbrev,capitalise]{cleveref}
 \usepackage{breakurl}
 

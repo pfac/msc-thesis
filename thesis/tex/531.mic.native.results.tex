@@ -4,6 +4,33 @@
 	\subsection{Results}
 	\label{subsec:mic:native:results}
 
+	\tdg{sugar and methodology}
+	Although the \intel\xeonphi coprocessor is able to run the same code as a regular \intel\xeon processor, the question remains whether it is able to achieve similar or higher efficiency without extra effort. This section shows the results obtained with performance tests using the diagonal strategy in the coprocessor, following the methodology described in \cref{sec:case:method} with a block dimension of 32.
+
+	\tdg{environment}
+	Measurements for this section were performed using a single computational node of the 711 group in the \search cluster, containing two \intel\xeon E5-2670 \cpus sharing 64GB DRAM (\numa) and an \intel\xeonphi Coprocessor 5110P (see \cref{tab:search:711,tab:5110p} for the hardware details). These nodes run Linux CentOS 6.4 and provide \intel Composer XE 2013. Tests were built with \icpc 13.1.2, \mkl, and Armadillo (3.900.7).
+
+	\begin{table}[p]
+		\centering
+		\begin{tabular}{|l|c|c|}
+			\hline
+			& \textbf{CPU} & \textbf{MIC}  \\
+			\hline
+			Clock frequency & 2.60 GHz & 1.053 GHz  \\
+			Cores & 8 & 60  \\
+			SIMD width & 256-bit (\avx) & 512-bit  \\
+			Memory type & --- & \gddr5  \\
+			Memory size & 64 GB & 8 GB  \\
+			Memory speed & --- & 5.0 GT/s  \\
+			\hline
+			Peak DP FLOPs & 166.4 GigaFLOP/s & 1.01 TeraFLOP/s  \\
+			Peak Memory Bandwidth & 51.2 GB/s & 320 GB/s  \\ 
+			\hline
+		\end{tabular}
+		\caption{Hardware details for \search node 711-1. Further information available in \cite{Intel:Xeon:e5_2670,Intel:Xeon:e5_2600,Intel:XeonPhi:5110P}.}
+		\label{tab:search:711}
+	\end{table}
+
 	\begin{figure}[htp]
 		\begin{center}
 			\includegraphics[width=0.9\textwidth]{assets/images/mic/point-diagonal.png}
