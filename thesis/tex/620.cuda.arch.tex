@@ -9,10 +9,10 @@
 		\item a large set of \cuda cores, the processing units that perform the arithmetic operations;
 		\item a much more limited number of \sfus and Load/Store units;
 		\item a Register File, big enough to provide each thread with a many registers (255 in recent generations \cite{NVIDIA:KEPLER});
-		\item Level 1 data cache, shared amongst all cores;
+		\item Level 1 data cache, shared among all cores;
 		\item shared memory;
 		\item schedulers to map threads to the cores for execution;
-		\item instruction cache shared amongst the schedulers;
+		\item instruction cache shared among the schedulers;
 	\end{itemize}
 
 	In \cuda, a kernel represents a set of instructions to be executed as a parallel task. These parallel tasks are constituted by a set of \cuda threads, which execute the same instructions on different data (follow both \simd and \simt approaches). \cuda threads are organized in a hierarchy: blocks aggregate threads assigned to the same \sm, and the set of all the blocks running the same kernel is a grid.

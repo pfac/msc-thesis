@@ -1,8 +1,8 @@
-TEX   = latexmk
+TEX   = latexmk -quiet
 FLAGS = -pvc
 
 default: thesis.tex
-	$(TEX) $(FLAGS)
+	TEXINPUTS="../shared:$(TEXINPUTS)" $(TEX) $(FLAGS)
 
 clean:
 	$(TEX) -C

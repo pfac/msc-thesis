@@ -13,7 +13,7 @@
 	In other words, this implementation does not support complex arithmetic, neither does it support quasi-triangular matrices. It also does not compute the eigenvalues of the input matrix in order to check if the principal square root exists for that matrix. These assumptions allow to focus the efforts towards implementing the algorithm at the core of the process for the resources available in heterogeneous systems, instead of implementing and validating multiple full featured solutions.
 
 	\tdg{the point method using the column strategy}%
-	This reference implementation uses the column strategy, i.e., computes the square root matrix one column at a time. \Cref{alg:sqrtm:column:point} shows the algorithm for this strategy. Columns are swept from left to right and in each column rows are traversed from the main diagonal up. The main diagonal element has no dependencies, it is computed straight away. All the other elements depend on those on its left and below. Solving the dependencies for a given element $U_{ij}$ outside the main diagonal consists in multiplying the sub-row in $i$ from the main diagonal to the column $j-1$ by the sub-column in $j$ from the row $i+1$ down to the main diagonal.
+	This reference implementation uses the column strategy, i.e., computes the square root matrix one column at a time. \Cref{alg:sqrtm:column:point} shows the algorithm for this strategy. Columns are swept from left to right and in each column rows are traversed from the main diagonal up. The main diagonal element has no dependencies, it is computed straight away. All the other elements depend on those on its left and below. Solving the dependencies for a given element $U_{ij}$ outside the main diagonal consists in multiplying the sub-row in $i$, from the main diagonal to the column $j-1$, with the sub-column in $j$, from the row $i+1$ down to the main diagonal.
 
 	\begin{algorithm}[htp]
 		\caption{Matrix Square Root (column, point)}
@@ -45,7 +45,7 @@
 	\end{algorithm}
 
 	\tdg{the block method using the column strategy}%
-	A block implementation of this algorithm consists in expanding the indices $i$ and $j$ to ranges. Given the assumptions for these implementations, the blocks can be thought of a regular grid of squares where only the blocks in the last row and column may have smaller dimensions (in case the block size is not a multiple of the matrix dimension). In fact, due to the upper triangular form of the matrix, only the blocks in the last column may be smaller (the last row is mostly zeros) and all the blocks in the main diagonal are squared.
+	A block implementation of this algorithm consists in expanding the indices $i$ and $j$ to ranges. Given the assumptions for these implementations, the blocks can be thought of as a regular grid of squares where only the blocks in the last row and column may have smaller dimensions (in case the block size is not a multiple of the matrix dimension). In fact, due to the upper triangular form of the matrix, only the blocks in the last column may be smaller (the last row is mostly zeros) and all the blocks in the main diagonal are squared.
 
 	\begin{algorithm}[htp]
 		\caption{Matrix Square Root (column, block)}
@@ -105,8 +105,8 @@
 	\end{itemize}
 
 	\tdg{column vs row}%
-	A row strategy is very similar to the algorithm that computes a column at a time. It consists mainly in swapping the two outer loops, so that the algorithm sweeps the matrix rows, from the bottom upward, and in traversing each row from the main diagonal to the element in the last column. These two strategies are equivalent and fit the two methods for storing multidimensional arrays in linear memory: the column strategy takes advantage of a column-major order used in Fortran, MATLAB and GNU Octave; the row strategy has better locality in a row-major order, typically used in C, C++ and Python.
+	A row strategy is very similar to the algorithm that computes a column at a time. It consists mainly in swapping the two outer loops, so that the algorithm sweeps the matrix rows, from the bottom upward, and traverses each row from the main diagonal to the element in the last column. These two strategies are equivalent and fit the two methods for storing multidimensional arrays in linear memory: the column strategy takes advantage of a column-major order used in Fortran, MATLAB and GNU Octave; the row strategy has better locality in a row-major order, typically used in C, C++ and Python.
 
 	\tdg{this document uses column-major}%
-	While the row-major order is typically used in C++, the Armadillo library use column-major order by default to improve its compatibility with the standard Fortran interfaces used in \blas and \lapack packages. Some libraries, such as CUBLAS, do not even provide a way to configure this behaviour \cite{NVIDIA:CUBLAS:5:0}. For convenience, all the implementations described in this document assume column-major order.
+	While the row-major order is typically used in C++, the Armadillo library uses column-major order by default to improve its compatibility with the standard Fortran interfaces used in \blas and \lapack packages. Some libraries, such as CUBLAS, do not even provide a way to configure this behaviour \cite{NVIDIA:CUBLAS:5:0}. For convenience, all the implementations described in this document assume column-major order.
 \end{document}

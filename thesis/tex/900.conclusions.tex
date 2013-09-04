@@ -33,7 +33,7 @@
 
 	Reimplementing the algorithm for \cuda-enabled devices proved to be the most tricky. Incompatibilities with the compiler and a tight coupling in the library prevented the already minimal presence of Armadillo, forcing to a reimplementation of the I/O operations. As for the development of the algorithm itself, the massive parallelism explicitly made available by the \cuda programming model significantly eased up the expression of the algorithm parallelism, despite the paradigm change. However, the absence of \blas and \lapack packages targeted to be used inside a single block of threads implied that these routines had to be manually implemented.
 
-	Results obtained with a (naive) \cuda implementation also did not surpass the performance of the \multicore environment. The absence of time to proceed optimizing this implementation left very promising paths unexplored.
+	Results obtained with a (naive) \cuda implementation also did not surpass the performance of the multicore environment. The absence of time to proceed optimizing this implementation left very promising paths unexplored.
 
 	Finally, even not having achieved higher performance using any of the hardware accelerators studied during this dissertation, the \cuda implementation may be used as a way for the processor to delegate part of its workload, allowing it to be used for other tasks. The same is true for the coprocessor implementation, although it would require changing the execution mode to offload, something that is not expected to be complex.
 

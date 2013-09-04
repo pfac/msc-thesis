@@ -6,19 +6,19 @@
 	\label{chp:multicore}
 
 	\tdg{HPC is ruled by Fortran and C/C++}%
-	Most of \hpc programming nowadays resumes to one of two languages: Fortran and C/C++. While the latter is preferred by the majority of programmers, the former is the preference of many mathematicians and physicists to implement their algorithms and simulations.
+	Most of \hpc programming nowadays can be resumed to one of two languages: Fortran and C/C++. While the latter is preferred by the majority of programmers, the former is the preference of many mathematicians and physicists to implement their algorithms and simulations.
 
 	\tdg{Fortran's success}%
 	The reason behind the success of Fortran lies in its evolution. Fortran (FORmula TRANslator) was the first language to abstract the underlying machine, which provided a way for scientists to program their numerical procedures, something that previously required knowledge of binary instructions, or the assembly language \cite{IBM100:Fortran}.
 
 	\tdg{Fortran evolution and difficulty to learn}%
-	Since its first release, Fortran has been updated several times, each new \textit{version} a language in its own right while still striving to maintain compatibility with earlier versions. This fact allows for legacy code to keep its compatibility with new projects and provides programmers familiarized with Fortran with better tools, but at the same time it hampers the learning process, as a programmer who knows Fortran 90 will most likely have some trouble interpreting Fortran IV.
+	Since its first release, Fortran has been updated several times, each new \textit{version} a language in its own right while still striving to maintain compatibility with earlier versions. This fact allows for legacy code to keep its compatibility with new projects and provides programmers familiarized with Fortran with better tools, but at the same time it hampers the learning process, as a programmer who learns Fortran 90 will most likely have some trouble interpreting Fortran IV.
 
 	\tdg{Easier alternatives to Fortran}%
-	Such does not happen with C and C++, as both languages have been vastly enhanced since their first release but the syntax itself remained very similar. Yet, these do not seem to be so attractive for scientists. Other alternatives are currently being used by the scientific and academic world, such as MATLAB and the free-software equivalent GNU Octave, which provide an even friendlier language and environment targeted for math and still focusing on performance.
+	Such does not happen with C and C++, as both languages have been vastly enhanced since their first releases but the syntax itself remained very similar. Yet, these do not seem to be so attractive for scientists. Other alternatives are currently being used by the scientific and academic world, such as MATLAB and the free-software equivalent GNU Octave, which provide an even friendlier language and environment targeted for math and still focusing on performance.
 
 	\tdg{Fortran features in other languages}%
-	Some features in Fortran are particularly useful for linear algebra algorithms, such as the array slicing notation. These features have long been incorporated in MATLAB and GNU Octave. As for C++, while the language does not support these features, this behaviour can be emulated using the Armadillo library. There is also an extension developed by \intel called \intel\cilk Plus which provides an array notation specially targeted for identifying data parallelism.
+	Some features in Fortran are particularly useful for linear algebra algorithms, such as the array slicing notation. These features have long been incorporated in MATLAB and GNU Octave. As for C++, while the language does not support these features, this behaviour can be emulated using the Armadillo library. \intel\cilk Plus also provides an array notation specially targeted for identifying data parallelism.
 
 	\tdg{The Armadillo library}%
 	The Armadillo library is a C++ linear algebra library with an API deliberately similar to MATLAB. Its complex template system (meta-programming) is targeted for speed and ease of use. In particular, it uses complex meta-programming mechanisms available in C++ to minimize memory usage. It also works as an abstract interface, allowing to use a high performance replacement for BLAS and LAPACK such as Intel MKL, AMD ACML or OpenBLAS. The interface is mostly agnostic during compilation and only during linkage does it require the replacement package to be available.

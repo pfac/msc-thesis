@@ -4,9 +4,9 @@
 	\section{Optimizations}
 	\label{sec:mic:optims}
 
-	The results presented in \cref{subsec:mic:native:results} are surprising, given the successful results obtained with the multicore implementation in \cref{chp:multicore} and the resources available in the \intel\xeonphi Coprocessor. The discrepancy is so big that a decision was made at this point to improve the performance of this implementation before exploring any other execution modes or programming models.
+	The results presented in \cref{subsec:mic:native:results} are surprising, given the successful results obtained with the multicore implementation in \cref{chp:multicore} and the resources available in the \intel\xeonphi coprocessor. The discrepancy is so big that a decision was made at this point to improve the performance of this implementation before exploring any other execution modes or programming models.
 
-	Documents from Intel state the best way to prepare for \intel\xeonphi coprocessors is to fully exploit the performance that an application can get on \intel\xeon processors first. Trying to use the coprocessor without maximizing the use of parallelism on the processor will almost certainly be a disappointment \cite{Intel:MIC:Overview}.
+	Documents from Intel state that the best way to prepare for \intel\xeonphi coprocessors is to fully exploit the performance that an application can get on \intel\xeon processors first. Trying to use the coprocessor without maximizing the use of parallelism on the processor will almost certainly be a disappointment \cite{Intel:MIC:Overview}.
 
 	The optimizations presented in this section are focused on a deeper analysis of the implemented algorithm and profiling the application running on a multicore environment, as doing so allows to use the tools made available in \intel Parallel Studio XE 2013.
 

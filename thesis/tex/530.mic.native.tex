@@ -5,7 +5,7 @@
 	\label{sec:mic:native}
 
 	\tdg{Native mode advantages}
-	The native execution mode provides several advantages over its alternatives. To start, it makes one extra core available. Given that the coprocessor's cores architecture is based on the x86 \isa, it also reduces the development time considerably, as a \cpu functional implementation requires only to be rebuilt targeting the \mic architecture in order for the device to be able to run it natively. It also skips the communication necessary in an offload-based implementation, which is a potential bottleneck for many applications. For these reasons, this mode was selected as a first attempt to use the \intel\xeonphi Coprocessor.
+	The native execution mode provides several advantages over its alternatives. To start, it makes one extra core available. Given that the coprocessor's cores architecture is based on the x86 \isa, it also reduces the development time considerably, as a \cpu functional implementation requires only to be rebuilt targeting the \mic architecture in order for the device to be able to run it natively. It also skips the communication necessary in an offload-based implementation, which is a potential bottleneck for many applications. For these reasons, this mode was selected for the first attempt to use the \intel\xeonphi coprocessor.
 
 	\tdg{Scalability}
 	According to Intel \cite{Intel:MIC:Overview}, in order to measure the readiness of an application for highly parallel execution, one should examine how the application scales, uses vectors and uses memory. Examining the scalability of the algorithm is performed by charting the performance of the implementation as the number of threads increases, something that was previously done in \cref{sec:multicore:results} with encouraging results.
@@ -14,10 +14,10 @@
 	Examining the vectorization consists in turning it on and off to check the differences, yet math routines such as those provided by \intel\mkl remain vectorized no matter how the application is compiled. Since this includes the \blas and \lapack routines that provide the heavy-lifting in the algorithm, vectorization is assumed to be as good as it can get.
 
 	\tdg{Memory expectations}
-	Memory is left unexamined, as it requires using hardware events. Memory can be a major issue, specially considering that the increased parallelism of these devices only makes sense using the explicit parallelism of the diagonal strategy, which presents unit stride whatsoever (with the exception of half of the dependencies for each element). Yet, the series of \intel\xeonphi coprocessor used for this dissertation (see \cref{chp:appendix:setup}) was designed to be ideal for memory bound workloads \cite{Intel:MIC:Discovery}.
+	Memory is left unexamined, as it requires using hardware events. Memory can be a major issue, specially considering that the increased parallelism of these devices only makes sense using the explicit parallelism of the diagonal strategy, which presents no unit stride whatsoever (with the exception of half of the dependencies for each element). Yet, the series of \intel\xeonphi coprocessor used for this dissertation (see \cref{chp:appendix:setup}) was designed to be ideal for memory bound workloads \cite{Intel:MIC:Discovery}.
 
 	\tdg{build system had to be changed}
-	As previously stated, no change was required to the code developed in the previous chapter, the only change being in the build process (the \texttt{-mmic} flag). Yet, the previous build system was not prepared for the \intel\xeonphi Coprocessor, since it implied cross-compilation, and had to be adapted.
+	As previously stated, no change was required to the code developed in the previous chapter, the only change being in the build process (the \texttt{-mmic} flag). Yet, the previous build system was not prepared for the \intel\xeonphi coprocessor, since it implied cross-compilation, and had to be adapted.
 
 	\subfile{tex/531.mic.native.results.tex}
 \end{document}

@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt,twoside,openright]{book}
+\documentclass[a4paper,12pt,twoside,openright]{scrbook}
 
 \usepackage{thesis}
 
@@ -15,6 +15,9 @@
 \begin{document}
 	\hypersetup{pageanchor=false}
 	\includepdf[pages=-]{assets/cover.pdf}
+	\cleardoubleemptypage
+	\includepdf[pages=-]{assets/title.pdf}
+	\includepdf[pages=-]{assets/decl.pdf}
 	\hypersetup{pageanchor=true}
 
 	\frontmatter
@@ -26,15 +29,16 @@
 
 	\tableofcontents
 	\addtocontents{toc}{~\hfill\textbf{Page}\par}
-	\subfile{tex/012.acronyms.tex}
 	\listoffigures
 	\addtocontents{lof}{~\hfill\textbf{Page}\par}
 	\listoftables
 	\addtocontents{lot}{~\hfill\textbf{Page}\par}
-	\listoflistings
-	\addtocontents{lol}{~\hfill\textbf{Page}\par}
+	% \listoflistings
+	% \addtocontents{lol}{~\hfill\textbf{Page}\par}
 	\listofalgorithms
 	\addtocontents{loa}{~\hfill\textbf{Page}\par}
+
+	\subfile{tex/012.acronyms.tex}
 	
 	\mainmatter
 	\subfile{tex/100.intro.tex}

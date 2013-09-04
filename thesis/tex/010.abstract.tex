@@ -2,5 +2,14 @@
 
 \begin{document}
 	\chapter*{\abstractname}
-	\tdi{an awesome abstract}
+
+	Matrix algorithms often deal with large amounts of data at a time, which impairs efficient cache memory usage. Recent collaborative work between the Numerical Algorithms Group and the University of Minho led to a blocked approach to the matrix square root algorithm with significant efficiency improvements, particularly in a multicore shared memory environment. 
+
+	Distributed memory architectures were left unexplored. In these systems data is distributed across multiple memory spaces, including those associated with specialized accelerator devices, such as GPUs. Systems with these devices are known as heterogeneous platforms.
+
+	This dissertation focuses on studying the blocked matrix square root algorithm, first in a multicore environment, and then in heterogeneous platforms. Two types of hardware accelerators are explored: \intel\xeonphi coprocessors and \nvidia\cuda-enabled GPUs.
+
+	The initial implementation confirmed the advantages of the blocked method and showed excellent scalability in a multicore environment. The same implementation was also used in the \intel\xeonphi, but the obtained performance results lagged behind the expected behaviour and the CPU-only alternative. Several optimizations techniques were applied to the common implementation, which managed to reduce the gap between the two environments.
+
+	The implementation for CUDA-enabled devices followed a different programming model and was not able to benefit from any of the previous solutions. It also required the implementation of BLAS and LAPACK routines, since no existing package fits the requirements of this application. The measured performance also showed that the CPU-only implementation is still the fastest.
 \end{document}

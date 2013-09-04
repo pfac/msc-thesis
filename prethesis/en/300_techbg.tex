@@ -21,7 +21,7 @@ In recent years, manufacturers have been enabling these devices to execute code 
 \item \sfus: square roots, trigonometric functions,\ldots;
 \item Load and Store units;
 \item Registers;
-\item Cache L1, shared amongst all cores;
+\item Cache L1, shared among all cores;
 \item a scheduler to map threads to the cores.
 \end{itemize}
 
@@ -48,7 +48,7 @@ A \gpu based on the Fermi architecture features up to 512 \cuda cores, organized
 
 While double precision support has been available since the previous G80 architecture, the Fermi architecture was specifically designed to work with double precision, having the ability to perform up to 16 fused multiply-add operations per \sm per clock. When working with single precision, the two Warp Schedulers and Instruction Dispatch Units in a single \sm allow to issue and execute two warps concurrently in either a group of 16 cores, 16 load/store units or 4 \sfus.
 
-The device has a 384-bit memory interface split amongst six memory partitions, supporting up to 6 GB GDDR5 global memory with a bandwidth of 192.4 GB/s. Additionally, the \sms are also placed around a shared 768 KB unified L2 cache. Each \sm has also 32768 registers (up to 63 registers per thread) and 64 KB of configurable memory to be split between the shared memory and the L1 cache in a 16+48 combination, either way \cite{NVIDIA:FERMI}.
+The device has a 384-bit memory interface split among six memory partitions, supporting up to 6 GB GDDR5 global memory with a bandwidth of 192.4 GB/s. Additionally, the \sms are also placed around a shared 768 KB unified L2 cache. Each \sm has also 32768 registers (up to 63 registers per thread) and 64 KB of configurable memory to be split between the shared memory and the L1 cache in a 16+48 combination, either way \cite{NVIDIA:FERMI}.
 
 \paragraphh{\nvidia Kepler Architecture}
 \begin{figure}[!htp]
@@ -98,7 +98,7 @@ While both these frameworks have originally been designed for shared memory appl
 \subsubsection{OpenMPC and OpenACC}
 OpenMPC\cite{OpenMPC} consists in an extension of the OpenMP specification to provide translation from  regular OpenMP directives to \cuda code.
 
-Parallel zone directives delimit the blocks of code candidate for \cuda kernels. Only loop and section directives are considered true parallel sections, which are translated to perform workload distribution amongst the available threads. Synchronization directives cause the kernels to be split, as this is the only way to force global synchronization amongst all threads. Directives specifying data properties are interpreted to find the best \gpu memory space for the required data.
+Parallel zone directives delimit the blocks of code candidate for \cuda kernels. Only loop and section directives are considered true parallel sections, which are translated to perform workload distribution among the available threads. Synchronization directives cause the kernels to be split, as this is the only way to force global synchronization among all threads. Directives specifying data properties are interpreted to find the best \gpu memory space for the required data.
 
 OpenACC\cite{OpenACC:1.0} is a standard API, in the same languages as OpenMP, meant to bring the advantages of OpenMP to \gpu programming. While originally designed only for \gpus, support has been extended for \mics. It abstracts the programmer from the memory management, kernel creation and the accelerator management. It also allows to execute both on the device and the \gpu host at the same time.
 

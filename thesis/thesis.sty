@@ -1,10 +1,23 @@
 %!TEX root = thesis.tex
 \ProvidesPackage{thesis}
 
-\usepackage{../shared/common}
+\usepackage{kvoptions}
+\SetupKeyvalOptions{
+  family=thesis,
+  prefix=thesis@
+}
+\DeclareBoolOption[false]{final}
+\ProcessKeyvalOptions*
 
-\usepackage{geometry}
-\geometry{paper=a4paper}
+\ifthesis@final
+  \usepackage[final]{common}
+  \geometry{paper=a4paper,top=2.5cm,left=2cm,right=2.5cm,bottom=1.5cm}
+\else
+  \usepackage{common}
+  \geometry{paper=a4paper,top=2.5cm,left=2cm,right=4.5cm,bottom=1.5cm,marginparwidth=3.5cm}
+\fi
+
+\setlength\parindent{1cm}
 
 
 %%%%% %%%%% %%%%% %%%%% %%%%% %%%%%

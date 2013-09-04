@@ -1,12 +1,21 @@
 \ProvidesPackage{common}
 
+\usepackage{kvoptions}
+\SetupKeyvalOptions{
+  family=thesis,
+  prefix=thesis@
+}
+\DeclareBoolOption[false]{final}
+\ProcessKeyvalOptions*
+
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[portuguese,english]{babel}
 
 \usepackage[algoruled,lined,longend,linesnumbered]{algorithm2e}
 \usepackage{amsmath}
-\usepackage{acronym}
+\usepackage[printonlyused]{acronym}
+\usepackage{geometry}
 \usepackage{graphicx}
 \usepackage{indentfirst}
 \usepackage{mathtools}
@@ -15,8 +24,13 @@
 \usepackage{pdfpages}    % enables \includepdf
 \usepackage{relsize}
 \usepackage{subfiles}
-\usepackage{todonotes}
 \usepackage{xspace}
+
+\ifthesis@final
+  \RequirePackage[disable]{todonotes}
+\else
+  \RequirePackage{todonotes}
+\fi
 
 \usepackage{varioref}
 \usepackage[colorlinks=false]{hyperref}

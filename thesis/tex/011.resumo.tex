@@ -3,6 +3,15 @@
 \selectlanguage{portuguese}
 \begin{document}
 	\chapter*{\abstractname}
-		\section*{Computação Eficiente da Raíz Quadrada de Matrizes em Plataformas Heterogéneas}
-		\tdi{Um resumo espetacular}
+		\section*{Computação Eficiente da Raíz Quadrada de uma Matriz em Plataformas Heterogéneas}
+
+		Algoritmos de matrizes lidam regularmente com grandes quantidades de dados ao mesmo tempo, o que dificulta uma utilização eficiente da cache. Um trabalho recente de colaboração entre o Numerical Algorithms Group e a Universidade do Minho levou a uma abordagem por blocos para o algoritmo da raíz quadrada de uma matriz com melhorias de eficiência significativas, particularmente num ambiente multicore de memória partilhada.
+
+		Arquitecturas de memória distribuída permaneceram inexploradas. Nestes sistemas os dados são distribuídos por diversos espaços de memória, incluindo aqueles associados a dispositivos aceleradores especializados, como GPUs. Sistemas com estes dispositivos são conhecidos como plataformas heterogéneas.
+
+		Esta dissertação foca-se em estudar o algoritmo da raíz quadrada de uma matriz por blocos, primeiro num ambiente multicore e depois usando plataformas heterogéneas. Dois tipos de aceleradores são explorados: co-processadores \intel\xeonphi e GPUs \nvidia habilitados para CUDA.
+
+		A implementação inicial confirmou as vantagens do método por blocos e mostrou uma escalabilidade excelente num ambiente multicore. A mesma implementação foi ainda usada para o \intel\xeonphi, mas os resultados de performance obtidos ficaram aquém do comportamento esperado e da alternativa usando apenas CPUs. Várias optimizações foram aplicadas a esta implementação comum, conseguindo reduzir a diferença entre os dois ambientes.
+
+		A implementação para dispositivos CUDA seguiu um modelo de programação diferente e não pôde beneficiar the nenhuma das soluções anteriores. Também exigiu a implementação de rotinas BLAS e LAPACK, já que nenhum dos pacotes existentes se adequa aos requisitos desta implementação. A performance medida também mostrou que a alternativa usando apenas CPUs ainda é a mais rápida.
 \end{document}
