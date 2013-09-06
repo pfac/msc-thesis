@@ -32,10 +32,13 @@
 	\end{table}
 
 	\tdg{cpu-only is better}
-	Although this implementation was able to profit in some measure from the experience gathered in the previous chapters, it was not able to match, much less exceed, the performance obtained in a multicore environment, even before the optimization techniques described in \cref{sec:mic:optims}. \Cref{fig:cuda:results:times} shows the execution times achieved by this (naive) \cuda implementation. The superiority of the multicore implementation is clear, being around 30 times faster for $n=8000$.
+	Although this implementation was able to profit in some measure from the experience gathered in the previous chapters, it was not able to match, much less exceed, the performance obtained in a multicore environment, even before the optimization techniques described in \cref{sec:mic:optims}. \Cref{fig:cuda:results:times} shows the execution times achieved by the three \cuda implementations (cPD, fPD and BD) in comparison with the fully optimized multicore implementation. The superiority of multicore is clear, being around 15 times faster than the best result for $n=8000$ in the \gpu.
 
 	\tdg{reasons for being worse}
 	However, there are several reasons for this to happen. First, the multicore implementation has been the target of several optimizations in this document, while this is an initial completely functional \cuda implementation. Given the time already invested in the \intel\xeonphi coprocessor, it is not feasible to perform optimizations targeting the \cuda environment. Next, the absence of optimized \blas and \lapack packages suiting the needs of the implementation. \mkl provides it for both multicore environment and coprocessor, while manual (also naive) implementations had to be devised for \cuda. Lastly, the synchronization requirement between diagonals forces the runtime to return to the \cpu between two consecutive diagonals, creating a bottleneck when the amount of elements/blocks no longer provides enough parallelism to overcome the communication cost.
+
+	\tdg{cPD is better}
+	What comes as a surprise in these results is the fact that the fine point-diagonal (cPD) implementation achieved a higher efficiency than the block alternative. The increased parallelism significantly compensates for the less efficient cache usage of the point method.
 
 	\begin{figure}[t]
 		\centering
