@@ -5,16 +5,16 @@
 	\section{Implementation}
 
 	\tdg{Kudos to Armadillo for the help, here's an example}%
-	Implementing the algorithms described in this chapter using C++ relied on heavy use of the Armadillo library. The MATLAB-like syntax made available by this library allowed for straight forward translation from the point method algorithms to the working code. See \cref{lst:multicore:diagonal:point} for a working example (stripped of header inclusion and namespace specification).
+	Implementing the algorithms described in this chapter using C++ relied on heavy use of the Armadillo library. The MATLAB-like syntax made available by this library allowed for straightforward translation from the point method algorithms to the working code. See \cref{lst:multicore:diagonal:point} for a working example (stripped of header inclusion and namespace specification).
 
 	\begin{listing}[htp]
 		\inputminted[linenos,tabsize=4]{c++}{assets/code/multicore.diagonal.point.cpp}
-		\caption[(Multicore) Point Diagonal Implementation]{Implementation of the matrix square root algorithm using the point method and the diagonal strategy.}
+		\caption[(Multicore) Point Diagonal Implementation]{C code for the matrix square root algorithm, using the point method and the diagonal strategy.}
 		\label{lst:multicore:diagonal:point}
 	\end{listing}
 
 	\tdg{using Armadillo for the block method}%
-	As for the block methods, the implementation requires a little more explanation. \texttt{span} is the type used by Armadillo to represent ranges. Giving a range as a coordinate when accessing elements of the matrix actually retrieves a sub-matrix, which can then used as a matrix on its own. The \blas calls, namely \texttt{GEMM}, are interfaced by the library using the standard multiplication operator (\texttt{*}) between two matrices. Lastly, the Sylvester equation is interfaced by the \texttt{syl()} function in Armadillo. After compilation, the library requires linkage to a \blas and a \lapack library.
+	As for the block methods, the implementation requires a little more explanation. \texttt{span} is the type used by Armadillo to represent ranges. Giving a range as a coordinate when accessing elements of the matrix actually retrieves a sub-matrix, which can then be used as a matrix on its own. The \blas routine \texttt{GEMM} is interfaced using the standard multiplication operator (\texttt{*}) between two matrices. Lastly, the Sylvester equation is interfaced by the \texttt{syl()} function in Armadillo. After compilation, the library requires linkage to a \blas and a \lapack library.
 
 	\tdg{parallelization with OpenMP}%
 	The parallelization of the diagonal strategy implementations was done using OpenMP. Once again, the index system simplifies the process, allowing to parallelize the algorithm using only the \texttt{parallel for} directive.

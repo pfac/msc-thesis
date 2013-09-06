@@ -4,7 +4,7 @@
 	\chapter{CUDA}
 	\label{chp:cuda}
 
-	Nowadays, \gpus are the most popular hardware accelerator being used in \hpc. These devices evolved in the field of image processing, where each pixel is usually independent of those around. For these reasons, \gpus were designed from scratch to be able to perform the same simple operation using huge amounts of data.
+	Nowadays, \gpus are the most popular hardware accelerator being used in \hpc. These devices evolved in the field of computer graphics, where each pixel is usually independent of those around. For these reasons, \gpus were designed from scratch to be able to perform the same simple operation using huge amounts of data.
 
 	For over a decade, computer scientists and domain scientists have been using these devices to execute code produced for other purposes besides image rendering -- the advent of \gpgpus \cite{NVIDIA:GPGPU}. Programming these accelerators is not a trivial task since it requires knowledge of the underlying architecture in order to be able to take full advantage of the device capabilities. The \gpu implementations described throughout this document will be targeted for \nvidia devices using the \nvidia's \cuda framework, since it is the dominant proprietary framework for \gpgpu programming. For this reason, the architectural characteristics of \gpgpus will be described using \cuda terminology.
 
@@ -35,13 +35,13 @@
 		\subsubsection{TRPAISV}
 
 		\begin{equation}
-			(A + aI)x = b
+			(A + \alpha I)x = b
 			\label{eq:trpaisv}
 		\end{equation}
 
 		\texttt{TRPAISV} does not exist implemented in any \blas library. It is based on the triangular solve function (\texttt{TRSV}) function, which solves the equation $Ax = b$, with the small change of adding $\alpha$ to the elements in the main diagonal of $A$ when these are used.
 
-		\Cref{eq:trpaisv} is solved by implementing the row-oriented parallel back substitution algorithm as described in \cite[293-295]{Quinn:PP:2003}. The algorithm iterates backwards over the columns of $A$, with each row assigned to one thread. For each column $c$, it starts by having a single thread compute the final value of the $c-th$ element in $x$ (adding $\alpha$), after which each thread updates its respective element in $x$.
+		\Cref{eq:trpaisv} is solved by implementing the row-oriented parallel back substitution algorithm as described in \cite[293-295]{Quinn:PP:2003}. The algorithm iterates backwards over the columns of $A$, with each row assigned to one thread. For each column $c$, it starts by having a single thread compute the final value of the $c$-th element in $x$ (adding $\alpha$), after which each thread updates its respective element in $x$.
 
 		To minimize memory allocations and copy operations, $b$ is overwritten with $x$.
 
@@ -51,7 +51,7 @@
 			\label{eq:trsyl}
 		\end{equation}
 
-		Lastly, this function solves the Sylvester equation (\cref{eq:trsyl}) using the Bartels-Stewart algorithm \cite[367-368]{Golub:Loan:MC:1996}. \Cref{alg:bartel_stewart} presents this algorithm. It iterates over the columns in $C$, with the first column calling only \texttt{TRPAISV}. The remaining ones need a call to \texttt{GEMV} before so \texttt{TRPAISV} is able to compute the final column.
+		Lastly, this function solves the Sylvester equation (\cref{eq:trsyl}) using the Bartels-Stewart algorithm \cite[367-368]{Golub:Loan:MC:1996} (\cref{alg:bartel_stewart}). It iterates over the columns in $C$, with the first column calling only \texttt{TRPAISV}. The remaining ones need a call to \texttt{GEMV} before so \texttt{TRPAISV} is able to compute the final column.
 
 		Similar to what happens in \texttt{TRPAISV}, $C$ is overwritten with $X$ to minimize memory allocations.
 

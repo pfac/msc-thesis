@@ -1,0 +1,26 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Distributed Memory}
+	\label{sec:techbg:distmem}
+
+	\tdi{get citation from COD}
+	\tdg{processor-memory gap}%
+	The evolution of \cpu and memory chips followed very distinct paths. While the former focused on higher clock frequencies, the latter focused on capacity. Throughout the decades, this created and aggravated a performance gap between the processor and the memory, with memory accesses taking hundreds of processor clock cycles to be fulfilled. In \cpus, this limitation was overcome with the creation of a memory hierarchy, with the large main memory in the bottom, and multiple levels of cache memory, each smaller, faster and closer to the computing cores.
+
+	\tdg{uniform memory accesses}%
+	In a typical \smp system, all processors share the same interface to connect to the main memory. These architectures are classified as \uma, given that all processors are seen as equal by the system and therefore all memory requests have the same latency. Such designs scale poorly with the number of processors, as one processor has to wait until all previous requests from other processors are fulfilled in order to access the main memory. Added to the gap between processor and memory speeds, this further aggravates the memory bottleneck.
+
+	\tdg{non-uniform memory accesses}%
+	On the other hand, in \numa architectures the processors are connected to multiple memories, but with different access latencies. In recent architectures this is achieved by moving the memory controller to the \cpu chip itself, which allows for each processor to have its own memory banks. Consequently, this allows for memory accesses to be parallelized, but this causes memory accesses to take longer when the requested memory address lies in another processor's memory, as the request has to go through the connection between the two processors. This increases the importance of controlling thread affinity, similar to what happens with memory cache. Some processors even implement \numa inside the chip. The \amd Magny-Cours architecture, for example, is built with two Istambul dies in the same package, each being a \numa node with two memory channels \cite{AMD:MagnyCours}.
+
+	\tdg{shared memory}%
+	In a single multiprocessor computational node, where multiple memories exist each directly connected to one \cpu, a single unified address space exists for all the main memory. This is called a shared memory system, where all data lies in a single unified address space and every processor has implicit access to all memory. In other words, even if a given processor is not directly connected to the memory containing the required data, it can still directly address that data.
+
+	\tdg{shared memory NUMA}%
+	Implementing a shared-memory \numa architecture introduces the complexity of maintaining coherence among the caches of multiple processors. This is required in order for the multiple processors to be able to use the same data. When one processor changes a shared data item, the coherency mechanism notifies the remaining processors that the copy in their private cache is outdated and the item must be reloaded from main memory. Maintaining coherency guarantees the correction of the program, but it hampers the scalability of \numa architectures.
+
+	\tdg{distributed memory}%
+	A distributed memory system arises in \hetplats, where each computational node has its own main memory address space. A single computational node may also implement a distributed memory architecture if it contains any hardware accelerator with its own built-in memory (with its own address space). These systems communicate through message passing, having to explicitly transfer all the required data between the multiple address spaces. Between distinct computational nodes, communication is usually done over a network connection using an \mpi library. In the case of accelerators, the solutions to implement communication depend on the tools used for development targeted for such devices. Communication becomes a possible bottleneck with distributed memory. As such, extra effort is required to efficiently distribute the workload among the available resources in order to achieve the best computation to communication ratio.
+
+\end{document}

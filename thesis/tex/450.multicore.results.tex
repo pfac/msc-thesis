@@ -5,7 +5,7 @@
 	\section{Results}
 	\label{sec:multicore:results}
 
-	\tdg{Rebuçados e methodology}
+	\tdg{Sugar and methodology}
 	Performance measurements are required to verify and quantify the improvements from using the block method over the point one and to properly compare the algorithms for the two presented strategies. This section presents the results obtained for these algorithms with tests running in a single node of the 701 group in the \search\footnote{\url{http://search.di.uminho.pt}} cluster. In addition to what was described in \cref{sec:case:method}, the methodology for these tests also included power-of-two equivalent dimensions (2048, 4096 and 8192). A block dimension of 64 was experimentally found to be the most efficient.
 
 	\tdg{OS and hardware}
@@ -32,13 +32,13 @@
 		\label{tab:search:701}
 	\end{table}
 
-	\Cref{fig:multicore:point:row:times} shows the execution times obtained for the point method with the row strategy. Preliminary tests with the column strategy showed identical results. It is clear that these strategies does not scale at all, unlike what happens with the diagonal strategy (\cref{fig:multicore:point:diagonal:times}), which reaches its maximum performance when using all the hardware supported threads.
+	Preliminary tests showed identical results for the column and the row strategy. Consequently, results will are shown only for one of these strategies. As expected, they do not scale at all, unlike the diagonal strategy that reaches its maximum performance when using all the hardware supported threads (\cref{fig:multicore:point:row:times,fig:multicore:point:diagonal:speedup}).
 
 	\begin{figure}[hp]
 		\begin{center}
 			\includegraphics[width=0.9\textwidth]{assets/images/multicore/point-row.png}
 		\end{center}
-		\caption{Execution times for point method and row strategy}
+		\caption[Execution times for point-row]{Execution times for point method and row strategy.}
 		\label{fig:multicore:point:row:times}
 	\end{figure}
 
@@ -46,18 +46,18 @@
 		\begin{center}
 			\includegraphics[width=0.9\textwidth]{assets/images/multicore/point-diagonal.png}
 		\end{center}
-		\caption{Execution times for point method and diagonal strategy}
-		\label{fig:multicore:point:diagonal:times}
+		\caption[Speedup point-diagonal vs point-row]{Speedup achieved with point-diagonal versus point-row.}
+		\label{fig:multicore:point:diagonal:speedup}
 	\end{figure}
 
-	The block method (\cref{fig:multicore:block:diagonal:times}) also scales well, with the minimum execution time being reached when using 32 threads (the 16 cores with Hyper-Threading). \Cref{fig:multicore:sensitivity} shows that the block method not only is faster than the point method, it is also less sensitive to small variations in the matrix size.
+	The block method also scales well (\cref{fig:multicore:block:diagonal:speedup}), with the maximum speedup versus the point-row implementation being reached when using 32 threads (the 16 cores with Hyper-Threading). Using power-of-two matrices it is possible to see that not only is the block method faster than the point alternative, it is also less sensitive to small variations in the matrix size (\cref{fig:multicore:sensitivity}).
 
 	\begin{figure}[hp]
 		\begin{center}
 			\includegraphics[width=0.9\textwidth]{assets/images/multicore/block-diagonal.png}
 		\end{center}
 		\caption{Execution times for block method and diagonal strategy}
-		\label{fig:multicore:block:diagonal:times}
+		\label{fig:multicore:block:diagonal:speedup}
 	\end{figure}
 
 	\begin{figure}[hp]
@@ -68,7 +68,7 @@
 		\label{fig:multicore:sensitivity}
 	\end{figure}
 
-	\Cref{fig:multicore:block:diagonal:speedup:accumulated} shows the speedup achieved only from blocking when using the diagonal strategy. This speedup is better noticed when using only one thread, since both strategies scale well. The accumulated speedup from both blocking and multithreading shows highly significant speedups, which are even greater when using special specific matrix sizes (\cref{fig:multicore:block:diagonal:speedup:accumulated:strange}).
+	Blocking already shows significant speedup on its own, when compared to the point method using the same number of threads (\cref{fig:multicore:block:diagonal:speedup}). Nonetheless, \cref{fig:multicore:block:diagonal:speedup:accumulated} shows the scalability of the block method compared with single-threaded point-diagonal achieves impressive speedup values (over 128 using 16 or 32 threads). These values are even higher for particular matrix sizes (\cref{fig:multicore:block:diagonal:speedup:accumulated:strange}).
 
 	\begin{figure}[hp]
 		\begin{center}

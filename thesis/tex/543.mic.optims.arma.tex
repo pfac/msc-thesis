@@ -1,0 +1,34 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\subsection{Armadillo}
+	\label{subsec:mic:optims:arma}
+
+	The information gathered by the Basic Hotspot analysis available in \intel\vtune Amplifier XE 2013 allows to identify the most time-consuming source code regions in an application. Results of this analysis run against the code implemented so far are shown in \cref{tab:hotspots}, with the two most time-consuming code regions happening in \mkl. Consequently, these are ignored as the optimized library is left in charge of these operations. After \blas and \lapack, the most time-consuming function belongs to Armadillo, and is meant for copying the blocks to be used as independent matrices.
+
+	\begin{table}[htp]
+		\begin{center}
+			\begin{tabular}{l|r@{.}l}
+				\hline
+				Function & \multicolumn{2}{r}{Time Spent (s)} \\
+				\hline
+				\texttt{dgemm} & 43 & 311  \\
+				\texttt{dtrsyl} & 23 & 398  \\
+				\texttt{arrayops::copy\_big} & 15 & 555  \\
+				\texttt{[OpenMP Worker]} & 6 & 303  \\
+				\texttt{dgees} & 5 & 811  \\
+				\hline
+			\end{tabular}
+		\end{center}
+		\caption[Basic Hotspot analysis results]{Basic Hotspot analysis results (in development environment)}
+		\label{tab:hotspots}
+	\end{table}
+
+	Armadillo tries to minimize matrix allocations and copies whenever possible. For example, chaining matrix addition operations uses a complex system of template ``glues'' that solve these additions without performing additional memory allocations. It also cares to use \blas operations without allocating a matrix to store the result whenever possible. Nevertheless, it is unable to perform optimizations like these when blocks are isolated because these have to be treated as standalone matrices from then on. Also, Armadillo lacks an interface for the \lapack function \texttt{TRSYL} which does not the result matrix is not allocated. Consequently, it is necessary to remove Armadillo from the implementation, replacing it with standard arrays and manual calls to \blas and \lapack.
+
+	For simplicity, implementation is bound to the \intel\mkl\blas interface. In the functions arguments (\cref{alg:mic:diagonal:point,alg:mic:diagonal:point:0,alg:mic:diagonal:point:1,alg:mic:diagonal:point:n,alg:mic:diagonal:block,alg:mic:diagonal:block:0,alg:mic:diagonal:block:1,alg:mic:diagonal:block:n}), Armadillo matrices are replaced with standard memory pointers (and the matrix dimension). In the point method, $s \leftarrow r \times c$ is replaced with a call to Level 1 \blas\texttt{DOT}, which does not require the $c$ and $r$ arrays to be isolated by using increments of $1$ and $n$, respectively.
+
+	For the block method, $C \leftarrow C - U_{ik} \times U_{kj}$ is replaced with a call to Level 3 \blas\texttt{GEMM}, and $U_{ij} \leftarrow \mathtt{sylvester} \left( U_{ii}, U_{jj}, C\right)$ is replaced with a call to \lapack\texttt{TRSYL}. Both these calls overwrite one of the operands, effectively removing any need for allocations and copy operations.
+
+	Note that Armadillo is removed from the computation but it is still used for I/O operations (loading the matrix from a file and result output).
+\end{document}

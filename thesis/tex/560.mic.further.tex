@@ -4,9 +4,11 @@
 	\section{Further Optimizations}
 	\label{sec:mic:further}
 
-	One of the most problematic issues when using a \numa system lies in the fact that a process that starts in one processor may at some time be scheduled out and moved to another. The problem behind this lies in memory hierarchy. Since the process started in a specific processor, it populated the cache and filled the memory directly linked to that processor with the data it requires. When moved to another, its data is no longer available in cache, which leads to a memory access, but the data it requires no longer lies in the closest memory. This also happens at the core level, with threads being scheduled to different cores inside the same processor, losing the advantage of locality in the core's private cache. For the specific case of \intel\mic devices, it is important for threads working with consecutive elements or in the same block to be in the same core in order to maximize the efficiency of the cache.
+	The results obtained in the previous section prove that achieving higher efficiency with the coprocessor is not as trivial as porting the code for it. However, there are still unexplored paths, which will remain so in the context for this dissertation due to its natural time constraints. The most promising of these paths is the control of thread affinity in the \intel\xeonphi.
 
-	Although OpenMP (specification 3.1) does not include any way to control thread affinity, \intel's OpenMP library was later found to contain a mechanism for it through an environment variable (\texttt{KMP\_AFFINITY}) \cite{PRACE:MIC:BestPracticeGuide,CESGA:MIC:Evaluation}. It is expectable that a balanced affinity policy, where the threads are spread among the cores but grouped sequentially by ID when the number of demanded threads exceeds the number of cores, with any granularity would achieve higher efficiency due a better usage of the first levels of cache.
+	One of the most problematic issues when using a \numa system lies in the fact that a process that starts in one processor may at some time be scheduled out and moved to another. The problem behind this lies in the memory hierarchy. When a process starts in a specific processor, it populates the cache and fills the memory directly linked to that processor with the data it requires. If moved to another processor, its data is no longer available in cache, which leads to a memory access, but the data it requires no longer lies in the closest memory. This also happens at the core level, with threads being scheduled to different cores inside the same processor, losing the advantage of locality in the core's private cache. For the specific case of \intel\mic devices, it is important for threads working with consecutive elements or in the same block to be in the same core for cache efficiency to be maximized.
+
+	Although OpenMP (specification 3.1) does not include any way to control thread affinity, \intel's OpenMP library contains a mechanism for it through an environment variable (\texttt{KMP\_AFFINITY}) \cite{PRACE:MIC:BestPracticeGuide,CESGA:MIC:Evaluation}. \Cref{fig:kmp_affinity:balanced} shows the most promising affinity policy available in the coprocessor, where the threads are spread among the cores but grouped sequentially by ID when the number of demanded threads exceeds the number of cores. This policy is expected to achieve higher efficiency (due a better usage of the first levels of cache) with any granularity.
 
 	\begin{figure}
 		\begin{center}
@@ -16,6 +18,6 @@
 		\label{fig:kmp_affinity:balanced}
 	\end{figure}
 
-	Rerunning the performance tests at this point with the correct affinity setup would hamper the development of a \cuda implementation (described in the next chapter). Consequently, it is left for future work.
+	Despite this mechanism requiring minimal changes in the source code (or none at all), rerunning the performance tests at this point with the correct affinity setup would hamper the development of a \cuda implementation (described in the next chapter). Consequently, it is left for future work.
 
 \end{document}

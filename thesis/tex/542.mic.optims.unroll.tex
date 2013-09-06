@@ -1,0 +1,219 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\subsection{Loop Unrolling}
+	\label{subsec:mic:optims:unroll}
+
+	Revisiting \cref{chp:case,alg:multicore:diagonal:point,alg:multicore:diagonal:block}, in particular the description of the algorithm dependencies, a deeper analysis leads to the conclusion that it is logical to unroll the diagonal loop. In both algorithms, the first and second diagonals act differently from the rest. The first diagonal has no dependencies and, as such, recursively applies the square root on the focused element/block (standard \texttt{sqrt} in the point method, which in turn is used by the block method).
+
+	On the other hand, the elements/blocks in the second diagonal depend only of those in the main diagonal. As such, there are no dependencies to solve, as the main diagonal elements/blocks are used directly to compute the final result.
+
+	The following diagonals perform additional work, having to compute how the elements/blocks on the left and below affect the input value, where this affected value is the one used to compute the final result.
+
+	\begin{algorithm}[htp]
+		\caption[Matrix Square Root Unrolled (diagonal, point)]{Matrix Square Root (diagonal, point)}
+		\label{alg:mic:diagonal:point}
+		\DontPrintSemicolon
+
+		\SetKwFunction{maind}{sqrtm\_d0}
+		\SetKwFunction{firstd}{sqrtm\_d1}
+		\SetKwFunction{otherd}{sqrtm\_dn}
+
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+		fill $U$ with zeros\;
+
+		\maind{$T$, $U$}\;
+		\firstd{$T$, $U$}\;
+		\For{$d \leftarrow 2$ \KwTo $n-1$}{
+			\otherd{$d$, $T$, $U$}\;
+		}
+	\end{algorithm}
+
+	\Cref{alg:mic:diagonal:point} shows the unrolled algorithm for the point method, using three distinct functions, one for each case. \texttt{sqrtm\_d0} handles the main diagonal ($d = 0$), \texttt{sqrtm\_d1} handles the first super-diagonal ($d = 1$) and \texttt{sqrtm\_dn} handles all the other diagonals, ($d$ is provided as an argument in the function call). These functions are described in \cref{alg:mic:diagonal:point:0,alg:mic:diagonal:point:1,alg:mic:diagonal:point:n}, respectively. \Cref{alg:mic:diagonal:block:0,alg:mic:diagonal:block:1,alg:mic:diagonal:block:n} show the corresponding algorithms for the block method, following the same index expansion logic described in \cref{chp:multicore}.
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root -- main diagonal (point)}
+		\label{alg:mic:diagonal:point:0}
+		\DontPrintSemicolon
+
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+
+		\For{$e \leftarrow 0$ \KwTo $n-1$}{
+			$U_{ee} \leftarrow \sqrt{T_{ee}}$\;
+		}
+	\end{algorithm}
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root -- first super-diagonal (point)}
+		\label{alg:mic:diagonal:point:1}
+		\DontPrintSemicolon
+
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+
+		\For{$e \leftarrow 0$ \KwTo $n-2$}{
+			$i \leftarrow e$\;
+			$j \leftarrow e + 1$\;
+			$U_{ij} \leftarrow \frac{T_{ij}}{U_{ii}U_{jj}}$\;
+		}
+	\end{algorithm}
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root -- other super-diagonals (point)}
+		\label{alg:mic:diagonal:point:n}
+		\DontPrintSemicolon
+
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{The diagonal index $d$}
+		\Input{A real upper triangular matrix $T$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+
+		\For{$e \leftarrow 0$ \KwTo $n-d-1$}{
+			$i \leftarrow e$\;
+			$j \leftarrow e + d$\;
+			$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
+			$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
+			$s \leftarrow r \times c$\;
+			$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} \cdot U_{jj}}$\;
+		}
+	\end{algorithm}
+
+	\begin{algorithm}[htp]
+		\caption[Matrix Square Root Unrolled (diagonal, block)]{Matrix Square Root (diagonal, block)}
+		\label{alg:mic:diagonal:block}
+		\DontPrintSemicolon
+
+		\SetKwFunction{maind}{sqrtm\_d0}
+		\SetKwFunction{sqrtm}{sqrtm\_d1}
+		\SetKwFunction{sqrtm}{sqrtm\_dn}
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Input{The dimension of a full block $b$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+		$\#\mathrm{blocks} \leftarrow \ceil{n / b}$\;
+		fill $U$ with zeros\;
+
+		\maind{$T$, $\#\mathrm{blocks}$, $b$, $U$}\;
+		\firstd{$T$, $\#\mathrm{blocks} - 1$, $b$, $U$}\;
+		\For{$d \leftarrow 2$ \KwTo $\#\mathrm{blocks}-1$}{
+			\otherd{$d$, $T$, $\#\mathrm{blocks} - d$, $b$, $U$}\;
+		}
+	\end{algorithm}
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root -- main diagonal (block)}
+		\label{alg:mic:diagonal:block:0}
+		\DontPrintSemicolon
+
+		\SetKwFunction{min}{min}
+		\SetKwFunction{range}{range}
+		\SetKwFunction{sqrtm}{sqrtm}
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Input{The number of blocks in this diagonal $\#\mathrm{blocks}$}
+		\Input{The dimension of a full block $b$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+
+		\For{$e \leftarrow 0$ \KwTo $\#\mathrm{blocks}-1$}{
+			$i_0 \leftarrow e \cdot b$\;
+			$i_1 \leftarrow $\min{$(e+1) \cdot b$, $n$}$-1$\;
+			$i \leftarrow $\range{$i_0$, $i_1$}\;
+			$U_{ii} \leftarrow $\sqrtm{${T_{ii}}$}\;
+		}
+	\end{algorithm}
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root -- first super-diagonal (block)}
+		\label{alg:mic:diagonal:block:1}
+		\DontPrintSemicolon
+
+		\SetKwFunction{min}{min}
+		\SetKwFunction{range}{range}
+		\SetKwFunction{sylvester}{sylvester}
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Input{The number of blocks in this diagonal $\#\mathrm{blocks}$}
+		\Input{The dimension of a full block $b$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+		$\#\mathrm{blocks} \leftarrow \ceil{n / b}$\;
+
+		\For{$e \leftarrow 0$ \KwTo $\#\mathrm{blocks}-1$}{
+			$i_0 \leftarrow e \cdot b$\;
+			$i_1 \leftarrow $\min{$(e+1) \cdot b$, $n$}$-1$\;
+			$i \leftarrow $\range{$i_0$, $i_1$}\;
+			$j_0 \leftarrow (e + 1) \cdot b$\;
+			$j_1 \leftarrow $\min{$(e + 2) \cdot b$, $n$}$-1$\;
+			$j \leftarrow $\range{$j_0$, $j_1$}\;
+			$U_{ij} \leftarrow $\sylvester{$U_{ii}$, $U_{jj}$, $T_{ij}$}\;
+		}
+	\end{algorithm}
+
+	\begin{algorithm}[htp]
+		\caption{Matrix Square Root -- other super-diagonals (block)}
+		\label{alg:mic:diagonal:block:n}
+		\DontPrintSemicolon
+
+		\SetKwFunction{min}{min}
+		\SetKwFunction{range}{range}
+		\SetKwFunction{sqrtm}{sqrtm}
+		\SetKwFunction{sylvester}{sylvester}
+		\SetKwInOut{Input}{input}
+		\SetKwInOut{Output}{output}
+
+		\Input{A real upper triangular matrix $T$}
+		\Input{The number of blocks in this diagonal $\#\mathrm{blocks}$}
+		\Input{The dimension of a full block $b$}
+		\Output{A real upper triangular matrix $U$, where $U^2 \approx T$}
+		$n \leftarrow$ dimension of $T$\;
+		$\#\mathrm{blocks} \leftarrow \ceil{n / b}$\;
+		
+		\For{$e \leftarrow 0$ \KwTo $\#\mathrm{blocks}-1$}{
+			$i_0 \leftarrow e \cdot b$\;
+			$i_1 \leftarrow $\min{$(e+1) \cdot b$, $n$}$-1$\;
+			$i \leftarrow $\range{$i_0$, $i_1$}\;
+			\eIf{$d = 0$}{
+				$U_{ii} \leftarrow $\sqrtm{${T_{ii}}$}\;
+			}{
+				$j_0 \leftarrow (e + d) \cdot b$\;
+				$j_1 \leftarrow $\min{$(e + d + 1) \cdot b$, $n$}$-1$\;
+				$j \leftarrow $\range{$j_0$, $j_1$}\;
+				$F \leftarrow U_{ii}$\;
+				$G \leftarrow U_{jj}$\;
+				$C \leftarrow T_{ij}$\;
+				\For{$z \leftarrow 1$ \KwTo $d - 1$}{
+					$k_0 \leftarrow (e + z) \cdot b$\;
+					$k_1 \leftarrow (e + z + 1) \cdot b - 1$\;
+					$k \leftarrow $\range{$k_0$, $k_1$}\;
+					$C \leftarrow C - U_{ik} \times U_{kj}$\;
+				}
+				$U_{ij} \leftarrow $\sylvester{$U_{ii}$, $U_{jj}$, $C$}\;
+			}
+		}
+	\end{algorithm}
+\end{document}

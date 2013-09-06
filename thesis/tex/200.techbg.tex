@@ -11,27 +11,14 @@
 	\citewithauthor{Hennessy:Patterson:2012:CAQA} define two classes of parallelism:
 		\begin{description}
 			\item [Data-Level Parallelism] consists in many data items being computed at the same time;
-			\item [Task-Level Parallelism], where different tasks of work are able to operate independently and largely in parallel.
+			\item [Task-Level Parallelism] refers to different tasks of work able to operate independently and largely in parallel.
 		\end{description}
 	\tdg{parallelism in hardware} The hardware can exploit these two kinds of parallelism at four different levels. Processors take advantage of \ilp without any intervention from the programmer through mechanisms like superscalarity, out-of-order execution, pipelining and speculative execution. Vector processing on the other hand, uses a single instruction to operate over a collection of data in parallel, similar to what happened with vector computers but at a smaller scale. \tlp enables both data and task level parallelism by allowing more than one thread of instructions to be executed at the same time. Threads can also be used to hide memory latencies, by allowing another thread to use the physical resources while the memory request is not fulfilled. Lastly, \rlp, used in warehouse-scale computing, exploits parallelism among largely decoupled tasks specified by the programmer or the operating system.
 
 	\tdg{software has to be redesigned}%
-	The multicore advent is forcing a deep in change in software development. Legacy software, intrinsically sequential, is no longer able to profit from the evolution of computational hardware as new generations of microprocessors work at roughly the same speed (sometimes even less) but provide extra resources these applications are not prepared to take advantage of. This implies a re-design of old applications, otherwise they will plateau at or near current levels of performance, facing the risk of stagnation and loss of competitiveness, both for themselves and any projects that might depend on these legacy applications \cite{Farber:2011:RedefiningWhatIsPossible}.
+	For decades programmers did not have to worry with exploring parallelism in their applications but the multicore advent is forcing a deep change in software development. Legacy software, intrinsically sequential, is no longer able to profit from the evolution of computational hardware as new generations of microprocessors work at roughly the same clock frequency (sometimes even less), instead providing extra resources these applications are not prepared to take advantage of. This implies a re-design of old applications, otherwise they will plateau at or near current levels of performance, facing the risk of stagnation and loss of competitiveness, both for themselves and any projects that might depend on these legacy applications \cite{Farber:2011:RedefiningWhatIsPossible}.
 
-		\section{Heterogeneous Platforms}
-		As the evolution of microprocessors move towards higher levels of parallelism, several other options exist, from using multiple machines in a cluster, allowing each to perform part of the computation independently, to specific-purpose devices such as \dsps and \gpus.
-
-		\tdg{definition of hetplats}%
-		A given system is said to be heterogeneous when it contains multiple devices of different kinds. Usually, each of these devices is capable of computing several operations in parallel. The most efficient computing systems of the world in the TOP500 list\footnote{\url{http://www.top500.org}} are composed of several interconnected computing nodes, each with multiple multicore \cpus and one or more specialized hardware accelerators. \gpus and \intel\xeon Phi devices are currently the most popular.
-
-		\tdg{GPUs and MICs (summary)}%
-		Popularity of these new specialized devices in \hpc, some created and developed in completely separate environments, has been increasing in the last years, triggered by the trend to use the number of cores in computing hardware. \gpus evolution, for example, where throughput is more important than speed, led to massively parallel architectures, able to process hundreds of pixels at the same time. Devices based on the \intel\mic architecture, on the other hand, are placed between \gpus and \cpus, having the characteristics for massive parallelism while still being able to handle more complex operations (such as running an operating system). Both kinds of devices are explained in more depth in \cref{chp:cuda,chp:mic} where they are explored in the context of this document's case study.
-
-		\tdg{alternative accelerators}%
-		\dsps are another class of accelerators recently made popular for \hpc due to new architectures able to perform floating-point computations. Their architecture is very similar to that of a conventional processor, both programming and memory-wise \cite{FLAWN61}. Alternatively, \fpgas mix a set of configurable logic blocks, digital signal processor blocks and traditional \cpu cores (optional), all using a configurable interconnect. The key characteristic of these devices is the ability to configure them for a specific type of computation making them extremely versatile \cite{Brodtkorb:2010}. These devices are described here for completeness, not being the scope of this document explore the case study using them.
-
-		\tdg{processor-memory gap in accelerators}%
-		Most hardware accelerators suffer from the same limitations as conventional processor architectures regarding memory latency (explained in \cref{sec:techbg:distmem}), despite the many strategies each one implements to hide or overcome the problem. Also, since the connection between the \cpu and an accelerator is typically performed over a \pcie interface, using the same memory banks would be a major bottleneck. For this reason, most devices have their own built-in memory hierarchy, which is managed in a space distinct of the \cpus.
+	\subfile{tex/210.techbg.hetplats.tex}
 
 
 		\section{Distributed Memory}

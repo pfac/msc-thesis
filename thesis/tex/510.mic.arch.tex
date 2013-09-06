@@ -20,6 +20,6 @@
 	Each coprocessor core supports up to 4 hardware threads and can execute 2 instructions per clock cycle, one on the U-pipe and one on the V-pipe (not all instructions can be executed in the latter). Each hardware thread has a ``ready-to-run'' buffer comprising two instruction bundles, each bundle representing two instructions that can be executed simultaneously.
 
 	\tdg{Vector capabilities}
-	The \vpu contains 32 vector registers, each 512-bit wide. It includes the \emu and is able to execute up to 16 integer or single-precision floating-point operations per cycle (half for double-precision). Additionally, each operation can be a floating-point multiply-add, thus doubling the number of operations in each cycle. Fully utilizing the \vpu is critical for achieving high performance with the coprocessor.
+	The \vpu contains 32 vector registers, each 512-bit wide. It includes the \emu and is able to execute up to 16 integer or single-precision floating-point operations per cycle (half for double-precision). Additionally, each operation can be a floating-point multiply-add, thus doubling the number of operations in each cycle. Fully utilizing the \vpu is critical to achieve high performance with the coprocessor.
 
 \end{document}

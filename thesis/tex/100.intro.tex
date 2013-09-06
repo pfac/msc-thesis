@@ -8,16 +8,16 @@
 	For more than half a century, computational systems have evolved at an increasing rate, fueled by a similar demand in computing power. The invention of the digital transistor, in 1947, smaller and faster than its predecessor, made computers smaller and more power efficient. Integrated circuits further reduced the space and power requirements of computers, which in turn led to the emergence of the microprocessor. The evolution of the microprocessor in the following decades followed had two main contributors: the number of transistors and their clock frequency.
 
 	\tdg{frequency goes faster, even with old software}%
-	A processor's clock frequency is the rate at which it can issue instructions, which means that a higher frequency roughly translated in more instructions being processed each second. This meant that the same old applications got faster just with the evolution of the underlying hardware, without any programming effort. On the other hand, increasing the number of transistors in a chip allowed to create complex systems that optimized software execution, mainly with the exploration of \ilp and the use of memory caches.
+	A processor's clock frequency is strongly correlated to the rate at which it can issue instructions, which means that a higher frequency is roughly translated into more instructions being processed each second. This meant that the same old applications got faster just with the evolution of the underlying hardware, without any programming effort. On the other hand, increasing the number of transistors in a chip allowed to create complex systems that optimized software execution, mainly with the exploration of \ilp and the use of memory caches to hide the increasing memory latency times.
 
 	\tdg{Moore's Law}%
-	In 1965, Gordon Moore, in an attempt to predict the evolution of integrated circuits during the following decade projected that the number of transistors would double every year \cite{Moore:1965}. In 1975, adding more recent data, he slowed the future rate of increase in complexity to what is still today known as Moore's Law: the number of transistors in a chip doubles every two years \cite{Moore:1975,ComputerHistory:Moore}.
+	In 1965, Gordon Moore, in an attempt to predict the evolution of integrated circuits during the following decade, projected that the number of transistors would double every year \cite{Moore:1965}. In 1975, adding more recent data, he slowed the future rate of increase in complexity to what is still today known as Moore's Law: the number of transistors in a chip doubles every two years \cite{Moore:1975,ComputerHistory:Moore}.
 
 	\tdg{frequency reached the limits, multicore is the future}%
-	In 2003, the evolution of the microprocessor reached a milestone. So far, the increase in clock frequency in microprocessors had followed closely the number of transistors, but the power density in processors was approaching the physical limitations of silicon with air cooling techniques. Continuing to increase the frequency would require new and prohibitively expensive cooling solutions. With Moore's Law still in effect, and the lack of more \ilp to explore efficiently, most vendors turned in a new direction, replacing old single heavy core \cpus with multiple simpler cores able to work in parallel.
+	In 2003, the evolution of the microprocessor reached a milestone. Until then, the increase in clock frequency in microprocessors had followed closely the number of transistors, but the power density in processors was approaching the physical limitations of silicon-based microelectronics with air cooling techniques. Continuing to increase the frequency would require new and prohibitively expensive cooling solutions. With Moore's Law still in effect, and the lack of more \ilp to explore efficiently, the key \cpu chip designers turned in a new direction, replacing old single heavy core \cpus with multiple simpler cores working in parallel and sharing common resources.
 
 	\tdg{new programming paradigm and heterogeneous platforms}%
-	The advent of multicore architectures also shifted the software development trends since sequential code is not able to use these multiple computing resources made available in modern systems. It also boosted the popularity of special purpose devices, like \gpus and \dsps. Besides having particular characteristics that might be suited for certain problems, using these devices to perform part of the computation allows the \cpu to be focused on other tasks, or to be focused in only a part of the domain, thus increasing efficiency. This can be further extended by interconnecting several computational nodes, each with one or more \cpus and some specialized devices, able to cooperate over a fast network interface. Such systems are called \hetplats.
+	The advent of multicore architectures also shifted the software development trends, since sequential code is no longer able to efficiently use these multiple computing resources, available in modern systems. It also boosted the popularity of special purpose devices, like \gpus and \dsps. Besides having particular features that might be suited for certain problems, using these devices to perform part of the computation allows the \cpu to be focused on other tasks, or to be focused in only a part of the domain, thus increasing efficiency. This can be further extended by interconnecting several computational nodes, each with one or more \cpus and some specialized devices, able to cooperate over a fast network interface. Such systems are called \hetplats.
 
 	\tdg{NAG}%
 	The \nag\cite{NAG} delivers a highly reliable commercial numerical library containing several specialized multicore functions for matrix operations. While the \nag library includes implementations of several algorithms for CUDA-enabled \gpus and the \intel\xeonphi coprocessor in heterogeneous platforms, it has yet no matrix square root function optimized for these devices \cite{NAG:GPU:0:6,NAG:MIC}.
@@ -28,43 +28,6 @@
 	\tdg{Previous work: blocked SQRTM}%
 	In a previous work, \citewithauthor{Deadman:Higham:Ralha:2013} expanded the method devised by \citewithauthor{bjorck:hammarling:1983} to compute the square root of a matrix, implementing an equivalent blocked method in a multicore environment. While blocked approaches are able to make a more efficient use of the memory hierarchy, they are also very well suited for devices designed for vector processing, such as \acfp{GPU} and devices based on \intel\mic architecture.
 
-	\section{Motivation and Goals}
-	\tdg{SQRTM applications and Gustafson's Law}%
-	Being the square root of a matrix a common operation to compute in problems from several fields (Markov models of finance, the solution to differential equations, computation of the polar decomposition and the matrix sign function) \cite{Higham:2008:FM}, creating an optimized implementation would make possible for more complex problems to be studied \cite{Gustafson:1988}.
-
-	\tdg{SQRTM not available for hetplats}%
-	Previous work on this algorithm has been focused mainly on implementing it in a \cpu shared memory environment; heterogeneous distributed memory environments are still unexplored. Also, other linear algebra projects oriented at \gpus lack implementations for this algorithm. The resources made available in the recent hardware accelerators hold great potential to improve performance.
-
-	\tdg{Scientific contribution}%
-	This dissertation intends to extend the implementation of the matrix square root algorithm to heterogeneous platforms in order to achieve a higher degree of efficiency. It is particularly interesting to study the performance of this algorithm using massively parallel hardware accelerators.
-
-	\tdg{Goals}%
-	Throughout this dissertation, three implementations of the core process behind the matrix square root algorithm are proposed. The first, targeted for a multicore environment provides a first approach to the algorithm, the typical naive implementation. It also allows to port the implementations described in previous work to a more familiar open source environment. The second implementation is meant to use the new \intel\xeonphi coprocessor, putting to the test the device that recently led the \textit{Tianhe-2} supercomputer to the first position in the TOP500 ranking\footnote{\url{http://www.top500.org/lists/2013/06/}}. Lastly, the third implementation is targeted for CUDA-enabled \gpus.
-
-	\tdg{Quantitive approach}%
-	Each implementation is evaluated quantitatively. The multicore implementation provides a scalability test to help analyse the behaviour of the algorithm, while the other two provide an overview of the computation impact of the algorithm when executed in an hardware accelerator.
-
-	% \section{Terminology}
-	% For the purpose of clarification, the following terminology is defined:
-	% 	\begin{description}
-	% 		\item [Computational Node]\hfill\\ One of the many machines that compose a cluster. It is able to cooperate with other nodes, communicating over fast network interfaces.
-	% 		\item [Host]\hfill\\
-	% 		\item [Device]\hfill\\
-	% 		\item [Main memory]\hfill\\
-	% 		\item [Processor]\hfill\\
-	% 		\item [Core]\hfill\\
-	% 		\item [Thread]\hfill\\
-	% 	\end{description}
-
-	\section{Document Organization}
-	\tdg{State-of-the-art chapters}%
-	\Cref{chp:techbg,chp:case} provide the background information required to conveniently contextualize the reader. In particular, \cref{chp:techbg} provides an overview over the evolution of \hpc, the hardware characteristics of heterogeneous platforms and the challenges faced by programmers in this area. It also covers some tools to aid with such issues.
-
-	\tdg{Implementation chapters}%
-	The following chapters focus on the three mentioned implementations. \Cref{chp:multicore} describes the multicore implementations and further contextualizes the reader with the case study. It also presents the scalability test results and the consequent analysis. \Cref{chp:mic} focuses on the implementation targeted	 for the Intel \mic architecture, the results obtained and optimizations for a better tuning. In a similar fashion, \cref{chp:cuda} does the same for the CUDA implementation.
-
-	\tdg{Conclusion and future work}%
-	Lastly, \cref{chp:conclusions,chp:futurework} present the conclusions of this dissertation and suggestions for future work, including further optimization opportunities and identified unexplored approaches.
-
-	The environmental setup and methodology used throughout this document are described in \cref{chp:appendix:setup}.
+	\subfile{tex/110.intro.goals.tex}
+	\subfile{tex/120.intro.organization.tex}
 \end{document}

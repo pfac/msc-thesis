@@ -1,0 +1,27 @@
+%!TEX root = ../thesis.tex
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Methods}
+
+		\tdg{block method math}%
+		In the previous work of \citeauthor{Deadman:Higham:Ralha:2013}\xspace\cite{Deadman:Higham:Ralha:2013}, the authors devised a blocked algorithm to compute the square root of a matrix. Similar to the original, the blocked algorithm lets $U_{ij}$ and $T_{ij}$ in \cref{eq:sqrtm:diag0,eq:sqrtm:diagN} refer to square blocks of dimension $m \ll n$ ($n$ being the dimension of the full matrix).
+
+		\tdg{block method operations}%
+		The blocks $U_{ii}$ (in the main diagonal) are computed using the non-blocked implementation previously described.
+		The remaining blocks are computed by solving the Sylvester equation \labelcref{eq:sqrtm:diagN}.
+		The dependencies can be solved with matrix multiplications and sums.
+		Where available, these operations can be performed using the LAPACK \texttt{TRSYL} and Level 3 BLAS \texttt{GEMM} calls, respectively.
+
+		\tdg{recursive blocking}%
+		Two blocked methods were devised: a standard blocking method, where the matrix is divided once in a set of well defined blocks; and a recursive blocking method, where blocks are recursively divided into smaller blocks, until a threshold is reached. This allows for larger calls to \texttt{GEMM}, and the Sylvester equation can be solved using a recursive algorithm \cite{Jonsson:Kagstrom:2002}.
+
+		\tdg{why recursive blocking is not worth it}%
+		While the recursive method achieved better results in the serial implementations, when using explicit parallelism the multiple synchronization points at each level of the recursion decreased the performance, favouring the standard blocking method. Given the devices targeted by this document's work, where explicit parallelism is required to take full advantage of the architecture, the recursive method is ignored.
+
+		\tdg{terminology}%
+		Using the same terminology, the non-blocked and standard blocked methods will be referred to hereafter as the point and block method, respectively.
+
+		\subfile{tex/330.case.eval.tex}
+
+\end{document}

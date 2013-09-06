@@ -1,0 +1,21 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Motivation and Goals}
+	\label{sec:intro:goals}
+
+	\tdg{SQRTM applications and Gustafson's Law}%
+	Being the square root of a matrix a common operation to compute in problems from several fields (e.g., Markov models of finance, the solution to differential equations, computation of the polar decomposition and the matrix sign function) \cite{Higham:2008:FM}, creating an optimized implementation would make possible for more complex problems to be studied \cite{Gustafson:1988}.
+
+	\tdg{SQRTM not available for hetplats}%
+	Previous work on this algorithm mainly addressed its implementation in a \cpu shared memory environment; heterogeneous distributed memory environments are still unexplored. Also, other linear algebra projects oriented at \gpus lack implementations for this algorithm. The resources made available in the recent hardware accelerators hold great potential to improve performance.
+
+	\tdg{Scientific contribution}%
+	This dissertation aims to extend the implementation of the matrix square root algorithm to heterogeneous platforms in order to achieve a higher degree of efficiency. It is particularly interesting to study the performance of this algorithm using massively parallel hardware accelerators.
+
+	\tdg{Goals}%
+	Throughout this dissertation, three implementations of the core process behind the matrix square root algorithm are proposed and studied. The first, targeted for a multicore environment provides a first approach to the algorithm, the typical naive implementation. It also allows to port the implementations described in previous work to a more familiar open source environment. The second implementation is meant to use the new \intel\xeonphi coprocessor, testing the device that recently led the \textit{Tianhe-2} supercomputer to the first position in the TOP500 ranking\footnote{\url{http://www.top500.org/lists/2013/06/}}. The third implementation is targeted for CUDA-enabled \gpus.
+
+	\tdg{Quantitive approach}%
+	Each implementation is quantitatively evaluated. The multicore implementation provides a scalability test to help in the analysis the algorithm behaviour, while the other two provide an overview of the computation impact of the algorithm when executed in an hardware accelerator with disjoint memory addressing.
+\end{document}

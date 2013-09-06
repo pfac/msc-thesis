@@ -1,0 +1,16 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\subsection{Massive Parallelism}
+	\label{subsec:mic:optims:massive}
+
+	Many-core devices like the \intel\xeonphi coprocessor make hundreds of parallel computing resources available to applications. When the degree of parallelism in such applications is too low, some of these resources remain idle during execution, hampering efficiency. This is a corollary from Amdahl's Law \cite{Amdahl:1967}, which explains that the maximum theoretical speedup an application might achieve in a given architecture is limited by the amount of time a sequential processor would spend in the parallel part of the code in comparison to the sequential part.
+
+	The degree of parallelism explored so far in the matrix square root algorithm is quite limiting. For any matrix of dimension $n$, there will be at most $n$ elements to be computed in parallel, which happens only once. After the main diagonal, every other diagonal has one less element to compute, until the last diagonal containing only one element. Consequently, the last diagonals are unable to take advantage of a high quantity of parallel resources.
+
+	Yet, this can be compensated when solving dependencies. Analysing \cref{eq:sqrtm:diagN} shows a sum of multiplications that translates into a dot product between the elements at the left and below the one being computed (excluding the main diagonal). A dot product is a highly parallel operation implemented in Level 1 \blas, and the number of dependencies increases as the algorithm progresses. For the last diagonal's only element, this operation can perform $n-2$ multiplications in parallel and sum all the products with a reduction.
+
+	For the point method, introducing parallelism when solving the dependencies requires a nested \texttt{parallel for} OpenMP directive with a reduction clause. As for the block method, this extension is not trivial as most OpenMP libraries do not allow reductions to be performed using non-scalar types such as Armadillo matrices. This can be circumvented by separating the directives: inside the parallel zone, each thread initializes a private matrix with the size of a full-block; a parallel loop then iterates over the dependencies, each thread subtracting a block from its copy; after the loop, an OpenMP lock allows each thread to add the computed block to the final result without creating a race condition.
+
+	This technique does not solve the application bottlenecks, but it allows for a better usage of resources in massively parallel devices (useful for both \intel\xeonphi and \gpus).
+\end{document}
