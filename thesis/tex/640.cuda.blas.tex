@@ -1,0 +1,74 @@
+\documentclass[../thesis]{subfiles}
+
+\begin{document}
+	\section{Single-block BLAS and LAPACK}
+	\label{sec:cuda:blas}
+
+	For the previous chapters, \mkl provided optimized routines for \blas and \lapack, thus extracting high efficiency from well known linear algebra operations. These packages exist for practically every language and \cuda is not an exception, with many alternatives listed by \nvidia. However, the solutions provided in these packages for \cuda aim to use all the resources available in the device efficiently and, consequently, are not suited to be used inside another kernel.
+
+	Implementing the block method for \cuda requires using \blas and \lapack routines confined to the scope of a single-block. This section describes how these routines were implemented to fit the problem restrictions in the absence of an optimized alternative.
+	
+		\subsubsection{GEMM}
+
+		\begin{equation}
+			C = \alpha A B + \beta C
+			\label{eq:gemm}
+		\end{equation}
+
+		The general matrix-matrix multiplication function was reimplemented based on the rowwise block-striped parallel algorithm \cite[277-281]{Quinn:PP:2003} using a function signature similar to the one used by \mkl. It solves \cref{eq:gemm} by iterating over the columns in $C$ and having each thread responsible for a row. For each column, every thread applies $\beta$ to the respective element in $C$. It then iterates over the rows in $B$ (or columns in $A$), computing the first parcel in the right side of the equation.
+
+		\subsubsection{GEMV}
+
+		\begin{equation}
+			y = \alpha A x + y
+			\label{eq:gemv}
+		\end{equation}
+
+		This function implements the general matrix-vector multiplication. It is a simplified version of \texttt{GEMM}, iterating over the columns in $A$ and having a thread assigned to each row. Each thread then computes the respective element in $y$.
+
+		\subsubsection{TRPAISV}
+
+		\begin{equation}
+			(A + \alpha I)x = b
+			\label{eq:trpaisv}
+		\end{equation}
+
+		\texttt{TRPAISV} does not exist implemented in any \blas library. It is based on the triangular solve function (\texttt{TRSV}) function, which solves the equation $Ax = b$, with the small change of adding $\alpha$ to the elements in the main diagonal of $A$ when these are used.
+
+		\Cref{eq:trpaisv} is solved by implementing the row-oriented parallel back substitution algorithm as described in \cite[293-295]{Quinn:PP:2003}. The algorithm iterates backwards over the columns of $A$, with each row assigned to one thread. For each column $c$, it starts by having a single thread compute the final value of the $c$-th element in $x$ (adding $\alpha$), after which each thread updates its respective element in $x$.
+
+		To minimize memory allocations and copy operations, $b$ is overwritten with $x$.
+
+		\subsubsection{TRSYL}
+		\begin{equation}
+			AX + XB = C
+			\label{eq:trsyl}
+		\end{equation}
+
+		Lastly, this function solves the Sylvester equation (\cref{eq:trsyl}) using the Bartels-Stewart algorithm \cite[367-368]{Golub:Loan:MC:1996} (\cref{alg:bartel_stewart}). It iterates over the columns in $C$, with the first column calling only \texttt{TRPAISV}. The remaining ones need a call to \texttt{GEMV} before so \texttt{TRPAISV} is able to compute the final column.
+
+		Similar to what happens in \texttt{TRPAISV}, $C$ is overwritten with $X$ to minimize memory allocations.
+
+		\begin{algorithm}[htp]
+			\caption{Bartels-Stewart}
+			\label{alg:bartel_stewart}
+			\DontPrintSemicolon
+
+			\SetKwFunction{range}{range}
+			\SetKwFunction{solve}{solve}
+			\SetKwInOut{Input}{input}
+			\SetKwInOut{Output}{output}
+
+			\Input{$A$: upper triangular matrix $m \times m$}
+			\Input{$B$: upper triangular matrix $n \times n$}
+			\Input{$C$: square matrix $m \times n$}
+			\Output{$X$: square matrix $m \times n$}
+
+			\For{$k \leftarrow 0$ \KwTo $n-1$}{
+				$i \leftarrow$\range{$0$,$m-1$}\;
+				$j \leftarrow$\range{$0$,$k-1$}\;
+				$X_{ik} \leftarrow C_{ik} + C_{ij} \times B_{jk}$\;
+				\solve{$(A-B_{kk})X_{ik} = X_{ik}$}
+			}
+		\end{algorithm}
+\end{document}
