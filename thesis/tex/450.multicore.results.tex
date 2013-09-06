@@ -14,7 +14,7 @@
 	\tdg{compiler and libraries}
 	Tests were built using \intel Composer XE 2011 (compiled with \icpc 12.0.2 and linked with \intel\mkl, for optimized \blas and \lapack) and Armadillo C++ Linear Algebra library (version 3.800.2).
 
-	\begin{table}[p]
+	\begin{table}[!htp]
 		\begin{center}
 			\begin{tabular}{lr}
 				\hline
@@ -32,65 +32,73 @@
 		\label{tab:search:701}
 	\end{table}
 
+
+
 	Preliminary tests showed identical results for the column and the row strategy. Consequently, results will are shown only for one of these strategies. As expected, they do not scale at all, unlike the diagonal strategy that reaches its maximum performance when using all the hardware supported threads (\cref{fig:multicore:point:row:times,fig:multicore:point:diagonal:speedup}).
-
-	\begin{figure}[hp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/multicore/point-row.png}
-		\end{center}
-		\caption[Execution times for point-row]{Execution times for point method and row strategy.}
-		\label{fig:multicore:point:row:times}
-	\end{figure}
-
-	\begin{figure}[hp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/multicore/point-diagonal.png}
-		\end{center}
-		\caption[Speedup point-diagonal vs point-row]{Speedup achieved with point-diagonal versus point-row.}
-		\label{fig:multicore:point:diagonal:speedup}
-	\end{figure}
 
 	The block method also scales well (\cref{fig:multicore:block:diagonal:speedup}), with the maximum speedup versus the point-row implementation being reached when using 32 threads (the 16 cores with Hyper-Threading). Using power-of-two matrices it is possible to see that not only is the block method faster than the point alternative, it is also less sensitive to small variations in the matrix size (\cref{fig:multicore:sensitivity}).
 
-	\begin{figure}[hp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/multicore/block-diagonal.png}
-		\end{center}
-		\caption{Execution times for block method and diagonal strategy}
-		\label{fig:multicore:block:diagonal:speedup}
+
+	Blocking already shows significant speedup on its own, when compared to the point method using the same number of threads (\cref{fig:multicore:block:diagonal:speedup}). Nonetheless, \cref{fig:multicore:block:diagonal:speedup:accumulated} shows the scalability of the block method compared with single-threaded point-diagonal achieves impressive speedup values (over 128 using 16 or 32 threads). These values are even higher for particular matrix sizes (\cref{fig:multicore:block:diagonal:speedup:accumulated:strange}).
+
+	\begin{figure}[p]
+		\begin{minipage}[t]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{assets/images/multicore/point-row.png}
+			\caption[Execution times for point-row]{Execution times for point method and row strategy.}
+			\label{fig:multicore:point:row:times}
+		\end{minipage}
+		\hfill
+		\begin{minipage}[t]{0.46\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{assets/images/multicore/point-diagonal.png}
+			\caption[Speedup point-diagonal vs point-row]{Speedup achieved with point-diagonal versus point-row.}
+			\label{fig:multicore:point:diagonal:speedup}
+		\end{minipage}
 	\end{figure}
 
-	\begin{figure}[hp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/multicore/matrix-variations.png}
-		\end{center}
+	\begin{figure}[p]
+		\begin{minipage}[t]{0.47\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{assets/images/multicore/block-diagonal.png}
+			\caption{Execution times for block method and diagonal strategy}
+			\label{fig:multicore:block:diagonal:speedup}
+		\end{minipage}
+		\hfill
+		\begin{minipage}[t]{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{assets/images/multicore/diagonal-speedup.png}
+			\caption{Speedups achieved with blocking for diagonal strategy}
+			\label{fig:multicore:block:diagonal:speedup}
+		\end{minipage}
+	\end{figure}
+
+	\begin{figure}[p]
+		\centering
+		\includegraphics[height=0.25\textheight]{assets/images/multicore/matrix-variations.png}
 		\caption{Execution time sensitivity for both point and block methods, using diagonal strategy}
 		\label{fig:multicore:sensitivity}
 	\end{figure}
 
-	Blocking already shows significant speedup on its own, when compared to the point method using the same number of threads (\cref{fig:multicore:block:diagonal:speedup}). Nonetheless, \cref{fig:multicore:block:diagonal:speedup:accumulated} shows the scalability of the block method compared with single-threaded point-diagonal achieves impressive speedup values (over 128 using 16 or 32 threads). These values are even higher for particular matrix sizes (\cref{fig:multicore:block:diagonal:speedup:accumulated:strange}).
-
-	\begin{figure}[hp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/multicore/diagonal-speedup.png}
-		\end{center}
+	\begin{figure}[p]
+		\centering
+		\includegraphics[height=0.25\textheight]{assets/images/multicore/diagonal-speedup.png}
 		\caption{Speedups achieved with blocking for diagonal strategy}
 		\label{fig:multicore:block:diagonal:speedup}
 	\end{figure}
 
-	\begin{figure}[hp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/multicore/diagonal-block-stpoint-speedup.png}
-		\end{center}
-		\caption{Accumulated speedup achieved with blocking for diagonal strategy}
-		\label{fig:multicore:block:diagonal:speedup:accumulated}
+	\begin{figure}[p]
+			\centering
+			\includegraphics[height=0.25\textheight]{assets/images/multicore/diagonal-block-stpoint-speedup.png}
+			\caption{Accumulated speedup achieved with blocking for diagonal strategy}
+			\label{fig:multicore:block:diagonal:speedup:accumulated}
 	\end{figure}
-
-	\begin{figure}[hp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/multicore/diagonal-block-stpoint-speedup-strange.png}
-		\end{center}
-		\caption{Accumulated speedups achieved with blocking for diagonal strategy (power of 2 sizes)}
+	
+	\begin{figure}[p]
+		\centering
+		\includegraphics[height=0.25\textheight]{assets/images/multicore/diagonal-block-stpoint-speedup-strange.png}
+		\captionsetup{font=small}
+		\caption{Accumulated speedup achieved with blocking for diagonal strategy (power of 2 sizes)}
 		\label{fig:multicore:block:diagonal:speedup:accumulated:strange}
 	\end{figure}
 \end{document}

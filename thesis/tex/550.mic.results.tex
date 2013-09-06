@@ -14,51 +14,52 @@
 
 	On the other hand, the lack of performance improvements from loop unrolling did not come as a surprise, serving the purpose of proving how the \intel\xeonphi coprocessor is superior to a \gpu when dealing with conditional branches.
 
-	The execution time for \usb is shown in \cref{fig:mic:optims:blockified:times} and, comparing with \cref{fig:mic:block:diagonal:times}, the speedup is clear even for the sequential time (reduced to less than half). The peak performance remained near the same number of threads (30 for $n=2000$, 60 for $n=4000$ and 120 for $n=8000$), but when more threads than those supported by the hardware are demanded, the performance now drops more intensely, with the optimized implementation taking twice as long with 360 threads.
+	The execution time for \usb is shown in \cref{fig:mic:optims:usb:times} and, comparing with \cref{fig:mic:block:diagonal:times}, the speedup is clear even for the sequential time (reduced to less than half). The peak performance remained near the same number of threads (30 for $n=2000$, 60 for $n=4000$ and 120 for $n=8000$), but when more threads than those supported by the hardware are demanded, the performance now drops more intensely, with the optimized implementation taking twice as long with 360 threads.
 
 	\begin{figure}[p]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/mic/optims/mic-blockified.png}
-		\end{center}
-		\caption{Execution times for the USB optimization in the \intel\xeonphi coprocessor.}
-		\label{fig:mic:optims:blockified:times}
+		\centering
+		\includegraphics[height=0.25\textheight]{assets/images/mic/optims/mic-usb-times.png}
+		% \captionsetup{font=small}
+		\caption{Execution times for USB in the \intel\xeonphi coprocessor.}
+		\label{fig:mic:optims:usb:times}
+	\end{figure}
+	
+	\begin{figure}[p]
+		\centering
+		\includegraphics[height=0.25\textheight]{assets/images/mic/optims/mic-ow-times.png}
+		% \captionsetup{font=small}
+		\caption{Execution times for OW in the \intel\xeonphi coprocessor.}
+		\label{fig:mic:optims:ow:times}
 	\end{figure}
 
-	While not so good, OW also improves the efficiency of the implementation, as shown in \cref{fig:mic:optims:self:times}. Contrary to what happens with USB, this optimization practically removes the penalty of demanding more threads than what the hardware supports, maintaining the execution time near peak performance even above 8 threads per core. Yet, the minimum execution time this optimization achieves is not as low.
-
 	\begin{figure}[p]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/mic/optims/mic-self.png}
-		\end{center}
-		\caption{Execution times for the OW optimization in the \intel\xeonphi coprocessor.}
-		\label{fig:mic:optims:self:times}
-	\end{figure}
-
-	Although USB exceeds OW in speedup, the highest efficiency is achieved when using both optimizations at the same time (\cref{fig:mic:optims:blockified_self:times}). The sequential time and the time obtained with 360 threads are practically the same as for USB only, and the same happens for the peaks. However, the value obtained with these peaks is reduced when OW is also applied.
-
-	\begin{figure}[p]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/mic/optims/mic-blockified.png}
-		\end{center}
+		\centering
+		\includegraphics[height=0.25\textheight]{assets/images/mic/optims/mic-usbow-times.png}
 		\caption{Execution times for USB and OW in the \intel\xeonphi coprocessor.}
-		\label{fig:mic:optims:blockified_self:times}
+		\label{fig:mic:optims:usbow:times}
 	\end{figure}
+
+	While not so good, OW also improves the efficiency of the implementation, as shown in \cref{fig:mic:optims:ow:times}. Contrary to what happens with USB, this optimization practically removes the penalty of demanding more threads than what the hardware supports, maintaining the execution time near peak performance even above 8 threads per core. Yet, the minimum execution time this optimization achieves is not as low.
+
+	Although USB exceeds OW in speedup, the highest efficiency is achieved when using both optimizations at the same time (\cref{fig:mic:optims:usbow:times}). The sequential time and the time obtained with 360 threads are practically the same as for USB only, and the same happens for the peaks. However, the value obtained with these peaks is reduced when OW is also applied.
 
 	\Cref{fig:mic:optims:best:times} shows the best execution times for the naive implementation and each optimization running in the \intel\xeonphi and the best execution time for USB and OW together running on the multicore environment. While it is clear the benefit of both optimizations, there is the problem of these optimizations being common to both the coprocessor and the multicore environment. However, \cref{fig:mic:optims:best:times} shows that these optimizations significantly reduce the speedup gap between the \cpu and the device.
 
-	\begin{figure}[p]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/mic/optims/best.png}
-		\end{center}
-		\caption{Best execution times for the optimizations.}
-		\label{fig:mic:optims:best:times}
-	\end{figure}
-
-	\begin{figure}[p]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/mic/optims/best-speedup.png}
-		\end{center}
-		\caption{Speedups for the optimizations versus multicore in group 701.}
-		\label{fig:mic:optims:best:speedup}
+	\begin{figure}[t]
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{assets/images/mic/optims/best.png}
+			\captionsetup{font=small}
+			\caption{Best execution times for the optimizations.}
+			\label{fig:mic:optims:best:times}
+		\end{minipage}
+		\hfill
+		\begin{minipage}{0.48\textwidth}
+			\centering
+			\includegraphics[width=\textwidth]{assets/images/mic/optims/best-speedup.png}
+			\captionsetup{font=small}
+			\caption{Speedups for the optimizations versus multicore in group 701 (from \cref{chp:multicore}).}
+			\label{fig:mic:optims:best:speedup}
+		\end{minipage}
 	\end{figure}
 \end{document}

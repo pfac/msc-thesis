@@ -37,10 +37,9 @@
 	\tdg{reasons for being worse}
 	However, there are several reasons for this to happen. First, the multicore implementation has been the target of several optimizations in this document, while this is an initial completely functional \cuda implementation. Given the time already invested in the \intel\xeonphi coprocessor, it is not feasible to perform optimizations targeting the \cuda environment. Next, the absence of optimized \blas and \lapack packages suiting the needs of the implementation. \mkl provides it for both multicore environment and coprocessor, while manual (also naive) implementations had to be devised for \cuda. Lastly, the synchronization requirement between diagonals forces the runtime to return to the \cpu between two consecutive diagonals, creating a bottleneck when the amount of elements/blocks no longer provides enough parallelism to overcome the communication cost.
 
-	\begin{figure}[htp]
-		\begin{center}
-			\includegraphics[width=0.9\textwidth]{assets/images/cuda/times.png}
-		\end{center}
+	\begin{figure}[t]
+		\centering
+		\includegraphics[width=0.9\textwidth]{assets/images/cuda/times.png}
 		\caption{Execution times for the CUDA implementation in a Tesla K20m (Kepler architecture).}
 		\label{fig:cuda:results:times}
 	\end{figure}

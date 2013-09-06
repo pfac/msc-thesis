@@ -1,4 +1,4 @@
-TEX   = latexmk -quiet
+TEX   = latexmk
 FLAGS = -pvc
 
 default: thesis.tex

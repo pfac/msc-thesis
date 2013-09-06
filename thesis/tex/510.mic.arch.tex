@@ -4,11 +4,25 @@
 	\section{Architecture}
 	\label{sec:mic:arch}
 
+	\begin{wrapfigure}{r}{0.3\textwidth}
+		\centering
+		\includegraphics[width=0.25\textwidth]{assets/images/mic/arch/core.png}
+		\captionsetup{font=small}
+		\caption{\intel MIC Architecture core diagram.}
+		\label{fig:mic:core}
+	\end{wrapfigure}
+
 	\tdg{\# of cores, frequency and cache}
 	The \intel\xeon Phi Coprocessor contains up to 61 fully functional in-order \intel\mic Architecture cores running at 1GHz (up to 1.3GHz), each containing 64KB of L1 cache (evenly split for data and instructions) and 512KB of L2 cache.
 
 	\tdg{Memory}
 	The device can support 8 memory controllers with two \gddr5 channels each. These support a total of 5.5 GT/s, corresponding to a theoretical aggregate bandwidth of 352 GB/s. So far, the maximum memory size available is 16GB\footnote{\intel\xeonphi Coprocessor 7120X \cite{intel:datasheet:xeonphi}}.
+
+	\begin{figure}[t]
+		\centering
+		\includegraphics[height=0.3\textheight]{assets/images/mic/arch/microarch.png}
+		\caption{Knights Corner Microarchitecture.}
+	\end{figure}
 
 	\tdg{Ring, LL cache and coherency}
 	A high performance on-die bidirectional ring connects the L2 caches, the memory controllers and the \pcie interface logic. The connected L2 caches allow for requests to be fulfilled from other cores' L2 caches faster than it would be from memory, thus implementing a last-level cache with over 30MB. Cache coherency is preserved across the entire coprocessor through a distributed tag directory using a reversible one-to-one hashing function.
