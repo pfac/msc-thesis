@@ -15,4 +15,25 @@
 
 	\tdg{super-diagonal}%
 	On the other hand, computing a super-diagonal at a time allows for several elements to be computed in parallel since all the dependencies were already computed in previous super-diagonals.
+
+	\begin{figure}[htp]
+		\begin{subfigure}{0.3\textwidth}
+			\centering
+			\includegraphics[width=0.9\textwidth]{assets/images/case/column.png}
+			\caption{column}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}{0.3\textwidth}
+			\centering
+			\includegraphics[width=0.9\textwidth]{assets/images/case/row.png}
+			\caption{row}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}{0.3\textwidth}
+			\centering
+			\includegraphics[width=0.9\textwidth]{assets/images/case/diagonal.png}
+			\caption{diagonal}
+		\end{subfigure}
+		\caption[Strategies for computing the matrix square root]{Strategies for computing the matrix square root. Green is solved, red has unsolved dependencies, black is ready to be computed next.}
+	\end{figure}
 \end{document}

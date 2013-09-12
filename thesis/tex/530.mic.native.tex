@@ -14,7 +14,7 @@
 	Examining the vectorization consists in turning it on and off to check the differences, yet math routines such as those provided by \intel\mkl remain vectorized no matter how the application is compiled. Since this includes the \blas and \lapack routines that provide the heavy-lifting in the algorithm, vectorization is assumed to be as good as it can get.
 
 	\tdg{Memory expectations}
-	Memory is left unexamined, as it requires using hardware events. Memory can be a major issue, specially considering that the increased parallelism of these devices only makes sense using the explicit parallelism of the diagonal strategy, which presents no unit stride whatsoever (with the exception of half of the dependencies for each element). Yet, the series of \intel\xeonphi coprocessor used for this dissertation was designed to be ideal for memory bound workloads \cite{Intel:MIC:Discovery}.
+	Memory is left unexamined, as it requires using hardware events. Memory can be a major issue, especially considering that the increased parallelism of these devices only makes sense using the explicit parallelism of the diagonal strategy, which presents no unit stride whatsoever (with the exception of half of the dependencies for each element). Yet, the series of \intel\xeonphi coprocessor used for this dissertation was designed to be ideal for memory bound workloads \cite{Intel:MIC:Discovery}.
 
 	\tdg{build system had to be changed}
 	As previously stated, no change was required to the code developed in the previous chapter, the only change being in the build process (the \texttt{-mmic} flag). However, the previous build system was not prepared for the \intel\xeonphi coprocessor, since it implied cross-compilation, and had to be adapted.

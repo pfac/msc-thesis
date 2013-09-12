@@ -18,8 +18,8 @@
 	\tdg{native mode}
 	The native mode is the only one that allows all the cores to be used, since it is not necessary for the OS to manage the system, something that requires one of the cores to be exclusive in other modes. Running an application natively in the coprocessor requires building specifically for its architecture, which in \icpc is done by providing the \texttt{-mmic} flag to both in the compiling and linking stages.
 
-	\tdg{libraries have to specially compiled for native mode}
-	Native applications also require libraries specifically built for the \intel\mic architecture. While the \intel libraries are made available by default in the \intel Composer XE Suites, third-party libraries like Boost have to be specially built for this architecture. These libraries are then required in the linking phase of the building process and while running the application. This implies that they must be copied to the device together with the application. 
+	\tdg{libraries have to especially compiled for native mode}
+	Native applications also require libraries specifically built for the \intel\mic architecture. While the \intel libraries are made available by default in the \intel Composer XE Suites, third-party libraries like Boost have to be especially built for this architecture. These libraries are then required in the linking phase of the building process and while running the application. This implies that they must be copied to the device together with the application. 
 
 	\tdg{offload mode}
 	Offload mode treats the device as a typical hardware accelerator, similar to what happens with a \gpu, using compiler directives (\texttt{pragma offload} in C/C++) to control the application behaviour. Code for both the host and the coprocessor are compiled in the host environment. During the execution of the first offloaded code, the runtime system loads the executable and the libraries linked with the code into the coprocessor, and these remain on the device memory until the host program terminates (thus maintaining state across offload instances).
@@ -40,7 +40,7 @@
 	Shared memory parallel programming in the coprocessor is possible using \pthreads, OpenMP, \intel\tbb and \intel\cilk. By default, for intra-node communication \mpi also uses a shared memory network fabric.
 
 	\tdg{MKL optimized for MIC}
-	\intel\mkl has been extended to offer special support for the \intel\xeonphi coprocessor since version 11.0. Some of its functions are specially optimized for the wider 512-bit \simd instructions, and future releases will provide a wider range of functions.
+	\intel\mkl has been extended to offer special support for the \intel\xeonphi coprocessor since version 11.0. Some of its functions are especially optimized for the wider 512-bit \simd instructions, and future releases will provide a wider range of functions.
 
 	\tdg{MKL usage models, native model}
 	The coprocessor makes available three distinct usage models for \mkl: automatic offload, compiler assisted offload and native. Automatic offload requires no change in the source code, with the exception of enabling \mkl in the coprocessor (may also be done in the environment). The runtime may automatically transfer data to the \xeonphi and perform computations there. By default, the library decides when to offload and also tries to determine the optimal work division between the host and the devices (\mkl supports multiple coprocessors), but this can be manually set in the source code or in the environment.

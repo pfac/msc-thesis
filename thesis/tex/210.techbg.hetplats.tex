@@ -6,6 +6,14 @@
 
 	As the evolution of microprocessors moves towards higher levels of parallelism, several other options exist, from using multiple machines in a cluster, allowing each to perform part of the computation independently, to specific-purpose devices such as \dsps and \gpus.
 
+	\begin{wrapfigure}{r}{0.4\textwidth}
+		\centering
+		\includegraphics[width=0.35\textwidth]{assets/images/techbg/hetplat.png}
+		\captionsetup{font=small}
+		\caption{Example of a computing node architecture.}
+		\label{fig:cudacore}
+	\end{wrapfigure}
+
 	\tdg{definition of hetplats}%
 	A given system is said to be heterogeneous when it contains multiple devices of different kinds. Usually, each of these devices is capable of computing several operations in parallel. The most efficient computing systems of the world in the TOP500 list\footnote{\url{http://www.top500.org}} are composed of several interconnected computing nodes, each with multiple multicore \cpus and one or more specialized hardware accelerators. \gpus and \intel\xeon Phi coprocessors are currently the most popular.
 
