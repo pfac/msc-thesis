@@ -7,11 +7,12 @@
 		\tdg{elements in the same diagonal can be computed in parallel}%
 		Given the dependencies of each element, using the column/row strategy does not allow to for more than one element to be computed at a time. On the other hand, since the dependencies of each element lie in those below and at its left, all the elements in the same diagonal can be computed in parallel.
 
-		\begin{algorithm}[htp]
+		\begin{algorithm}[!t]
 			\caption{Matrix Square Root (diagonal, point)}
 			\label{alg:multicore:diagonal:point}
 			\DontPrintSemicolon
 
+			\SetKwFunction{range}{range}	
 			\SetKwInOut{Input}{input}
 			\SetKwInOut{Output}{output}
 
@@ -29,11 +30,10 @@
 						$j \leftarrow e + d$\;
 						$s \leftarrow 0$\;
 						\If{$j-1 > i+1$}{
-							$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
-							$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
-							$s \leftarrow r \times c$\;
+							$k \leftarrow $\range{$i+1$,$j-1$}\;
+							$s \leftarrow U_{ik} \times U_{kj}$\;
 						}
-						$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} \cdot U_{jj}}$\;
+						$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} + U_{jj}}$\;
 					}
 				}
 			}

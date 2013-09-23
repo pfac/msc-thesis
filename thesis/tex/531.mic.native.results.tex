@@ -12,7 +12,7 @@
 
 	\begin{table}[!b]
 		\centering
-		\begin{tabular}{|l|c|c|}
+		\begin{tabular}{l|c|c}
 			\hline
 			& \textbf{CPU} & \textbf{MIC}  \\
 			\hline
@@ -27,7 +27,7 @@
 			Peak Memory Bandwidth & 51.2 GB/s & 320 GB/s  \\ 
 			\hline
 		\end{tabular}
-		\caption{Hardware details for \search node 711-1. Further information available in \cite{Intel:Xeon:e5_2670,Intel:Xeon:e5_2600,Intel:XeonPhi:5110P}.}
+		\caption[Hardware details for \search node 711-1]{Hardware details for \search node 711-1 (further information available in \cite{Intel:Xeon:e5_2670,Intel:Xeon:e5_2600,Intel:XeonPhi:5110P})}
 		\label{tab:search:711}
 	\end{table}
 
@@ -44,7 +44,7 @@
 			\centering
 			\includegraphics[width=\textwidth]{assets/images/mic/block-diagonal.png}
 			\captionsetup{font=small}
-			\caption{Execution times for block-diagonal strategy in the \intel\xeonphi}
+			\caption{Execution times for block-diagonal in the \intel\xeonphi}
 			\label{fig:mic:block:diagonal:times}
 		\end{minipage}
 	\end{figure}
@@ -55,7 +55,7 @@
 			\centering
 			\includegraphics[width=0.8\textwidth]{assets/images/mic/mic-cpu-speedup-accumulated.png}
 			\captionsetup{font=small}
-			\caption{Accumulated speedup from block-diagonal in the \intel\xeonphi versus point-diagonal in the \cpu.}
+			\caption{Accumulated speedup from block-diagonal in the \intel\xeonphi versus point-diagonal in the \acs{CPU}}
 			\label{fig:mic:mic-cpu:speedup:accumulated}
 		\end{minipage}
 	\end{figure}

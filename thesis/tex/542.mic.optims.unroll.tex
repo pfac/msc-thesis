@@ -68,7 +68,7 @@
 		\For{$e \leftarrow 0$ \KwTo $n-2$}{
 			$i \leftarrow e$\;
 			$j \leftarrow e + 1$\;
-			$U_{ij} \leftarrow \frac{T_{ij}}{U_{ii}U_{jj}}$\;
+			$U_{ij} \leftarrow \frac{T_{ij}}{U_{ii}+U_{jj}}$\;
 		}
 	\end{algorithm}
 
@@ -91,7 +91,7 @@
 			$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
 			$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
 			$s \leftarrow r \times c$\;
-			$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} \cdot U_{jj}}$\;
+			$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} + U_{jj}}$\;
 		}
 	\end{algorithm}
 

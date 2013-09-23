@@ -15,11 +15,12 @@
 	\tdg{the point method using the column strategy}%
 	This reference implementation uses the column strategy, i.e., computes the square root matrix one column at a time. \Cref{alg:sqrtm:column:point} shows the algorithm for this strategy: columns are swept from left to right and (in each column) rows are traversed from the main diagonal up. The main diagonal element has no dependencies, so it is immediately computed. All the other elements depend on those on its left and below. Solving the dependencies for a given element $U_{ij}$ outside the main diagonal consists in multiplying the sub-row in $i$, from the main diagonal to the column $j-1$, with the sub-column in $j$, from the row $i+1$ down to the main diagonal.
 
-	\begin{algorithm}[htp]
+	\begin{algorithm}[!t]
 		\caption{Matrix Square Root (column, point)}
 		\label{alg:sqrtm:column:point}
 		\DontPrintSemicolon
 
+		\SetKwFunction{range}{range}
 		\SetKwInOut{Input}{input}
 		\SetKwInOut{Output}{output}
 
@@ -34,12 +35,11 @@
 			\For{$i \leftarrow j-1$ \KwTo $0$}{
 				$s \leftarrow 0$\;
 				\If{$j-1 > i+1$}{
-					$r \leftarrow$ sub-row in $i$ from $i+1$ to $j-1$\;
-					$c \leftarrow$ sub-column in $j$ from $i+1$ to $j-1$\;
-					$s \leftarrow r \times c$\;
+					$k \leftarrow$\range{$i+1$, $j-1$}\;
+					$s \leftarrow U_{ik} \times U_{kj}$\;
 				}
 
-				$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} \cdot U_{jj}}$\;
+				$U_{ij} \leftarrow \frac{T_{ij} - s}{U_{ii} + U_{jj}}$\;
 			}
 		}
 	\end{algorithm}
@@ -47,7 +47,7 @@
 	\tdg{the block method using the column strategy}%
 	A block implementation of this algorithm consists in expanding the indices $i$ and $j$ to ranges. Given the assumptions for these implementations, the blocks can be thought of as a regular grid of squares where only the blocks in the last row and column may have smaller dimensions (if the block size is not a multiple of the matrix dimension). In fact, due to the upper triangular form of the matrix, only the blocks in the last column may be smaller (the last row is mostly zeros) and all the blocks in the main diagonal are squared.
 
-	\begin{algorithm}[htp]
+	\begin{algorithm}[p]
 		\caption{Matrix Square Root (column, block)}
 		\label{alg:sqrtm:column:block}
 		\DontPrintSemicolon
